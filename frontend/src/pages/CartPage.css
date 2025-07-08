@@ -1,0 +1,199 @@
+/* === Cart Page === */
+.cart-page {
+  max-width: 1000px;
+  margin: 60px auto;
+  padding: 24px;
+  background: #fff;
+  border-radius: 16px;
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.08);
+  font-family: 'Segoe UI', sans-serif;
+  color: #222;
+}
+
+.cart-page h2 {
+  font-size: 24px;
+  color: #009087;
+  text-align: center;
+  margin-bottom: 30px;
+}
+
+.cart-page h2 span {
+  font-weight: 500;
+  color: #2a2a2a;
+}
+
+/* === Empty Cart Text === */
+.empty-cart {
+  text-align: center;
+  font-size: 16px;
+  color: #888;
+  padding: 40px 0;
+}
+
+/* === Cart Items List === */
+.cart-items {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+/* === Individual Cart Item === */
+.cart-item {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  background: #f9f9f9;
+  border-radius: 12px;
+  padding: 16px;
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.05);
+  transition: transform 0.2s ease;
+}
+
+.cart-item:hover {
+  transform: translateY(-2px);
+}
+
+/* === Link Section (Image + Info) === */
+.cart-link {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  flex: 1;
+  text-decoration: none;
+  color: inherit;
+}
+
+.cart-link img {
+  width: 80px;
+  height: 80px;
+  object-fit: contain;
+  border-radius: 10px;
+  background: #fff;
+  border: 1px solid #eee;
+}
+
+.cart-link .info h4 {
+  margin: 0;
+  font-size: 16px;
+  color: #222;
+}
+
+.cart-link .info p {
+  margin: 4px 0;
+  font-size: 14px;
+  color: #555;
+}
+
+/* === Remove Button (Top Right) === */
+.remove-top {
+  position: absolute;
+  top: 12px;
+  right: 16px;
+}
+
+.remove-top button {
+  font-size: 13px;
+  background: #ffeef0;
+  color: #d0021b;
+  border: none;
+  padding: 4px 10px;
+  border-radius: 8px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.2s ease;
+}
+
+.remove-top button:hover {
+  background: #ffd5d9;
+}
+
+/* === Enquiry Button Wrapper === */
+.cart-footer {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 24px;
+}
+
+/* === Enquiry Button === */
+.enquiry-button {
+  padding: 8px 20px;
+  font-size: 14px;
+  background-color: white;
+  color: #009087;
+  border: 1.5px solid #009087;
+  border-radius: 20px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 3px 8px rgba(0, 144, 135, 0.1);
+  white-space: nowrap;
+}
+
+.enquiry-button:hover {
+  background-color: #009087;
+  color: white;
+  transform: translateY(-2px);
+}
+
+/* === Responsive === */
+@media (max-width: 768px) {
+  .cart-page {
+    padding: 16px;
+    margin: 40px 16px;
+    border-radius: 12px;
+  }
+
+  .cart-item {
+    flex-direction: column;
+    align-items: flex-start;
+    padding-top: 48px;
+  }
+
+  .cart-link {
+    flex-direction: column;
+    align-items: center;
+    width: 100%;
+  }
+
+  .cart-link img {
+    width: 100%;
+    height: auto;
+    margin-bottom: 10px;
+  }
+
+  .cart-link .info {
+    width: 100%;
+    text-align: center;
+  }
+
+  .remove-top {
+    top: 10px;
+    right: 12px;
+  }
+
+  .remove-top button {
+    font-size: 12px;
+    padding: 4px 8px;
+  }
+
+  .cart-footer {
+    justify-content: flex-end;
+  }
+
+  .enquiry-button {
+    font-size: 14px;
+    padding: 10px 16px;
+    width: auto;
+  }
+}
+
+@media (max-width: 420px) {
+  .cart-link .info h4 {
+    font-size: 15px;
+  }
+
+  .cart-link .info p {
+    font-size: 13px;
+  }
+}
