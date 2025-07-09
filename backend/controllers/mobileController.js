@@ -2,6 +2,7 @@ const Mobile = require('../models/Mobile');
 const Counter = require('../models/Counter');
 const cloudinary = require('../utils/cloudinary'); // adjust the path if needed
 
+
 // Generate next custom mobile ID
 const getNextMobileId = async () => {
   const counter = await Counter.findOneAndUpdate(
@@ -19,17 +20,8 @@ const uploadMobile = async (req, res) => {
       return res.status(400).json({ message: 'Image upload failed' });
     }
 
-    // Upload to Cloudinary
-    const uploaded = await Promise.all(
-      req.files.map((file) =>
-        cloudinary.uploader.upload(file.path, {
-          folder: 'jollybaba/mobiles',
-        })
-      )
-    );
-
-    const imageUrls = uploaded.map((img) => img.secure_url);
-    const imagePublicIds = uploaded.map((img) => img.public_id);
+    const imageUrls = req.files.map(file => file.path);         // Secure URLs from Cloudinary
+    const imagePublicIds = req.files.map(file => file.filename); // Cloudinary public IDs
 
     const { brand, model, ram, storage, price, color, condition } = req.body;
     const mobileId = await getNextMobileId();
@@ -50,10 +42,22 @@ const uploadMobile = async (req, res) => {
     const saved = await newMobile.save();
     res.status(201).json(saved);
   } catch (err) {
-    console.error('Upload error:', err);
-    res.status(500).json({ message: 'Upload failed' });
+    console.error('❌ Upload error:', err);
+    res.status(500).json({ message: 'Upload failed', error: err.message });
   }
 };
+
+// Get all mobiles (public)
+const getMobiles = async (req, res) => {
+  try {
+    const mobiles = await Mobile.find().sort({ createdAt: -1 });
+    res.status(200).json(mobiles);
+  } catch (err) {
+    console.error('❌ Fetch error:', err);
+    res.status(500).json({ message: 'Fetching mobiles failed' });
+  }
+};
+
 
 // Get all mobiles (public)
 const getMobiles = async (req, res) => {
