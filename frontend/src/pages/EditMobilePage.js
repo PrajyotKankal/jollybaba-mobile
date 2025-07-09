@@ -16,7 +16,9 @@ const EditMobilePage = () => {
   useEffect(() => {
     const fetchMobile = async () => {
       try {
-        const res = await axios.get(`http://localhost:5000/api/mobiles/${id}`);
+        const res = await axios.get(`${process.env.REACT_APP_API_URL}/api/mobiles/${id}`);
+
+        
         setMobile(res.data);
         setForm({
           brand: res.data.brand,
@@ -51,7 +53,7 @@ const EditMobilePage = () => {
     formData.append('imagesToDelete', JSON.stringify(imagesToDelete));
 
     try {
-      await axios.put(`http://localhost:5000/api/mobiles/${id}`, formData, {
+      await axios.put(`${process.env.REACT_APP_API_URL}/api/mobiles/${id}`, formData,  {
         headers: {
           Authorization: `Bearer ${token}`,
           'Content-Type': 'multipart/form-data'

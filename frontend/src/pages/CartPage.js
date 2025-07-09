@@ -12,11 +12,11 @@ const CartPage = () => {
       return;
     }
 
-    const baseUrl = 'http://localhost:3000'; // Replace in production
+const baseUrl = window.location.origin;
    const message = `Hello, I’m interested in the following mobiles:\n\n${cart
   .map(
     (item, index) =>
-      `${index + 1}. ${item.brand} ${item.model} (ID: ${item.mobileId}) (${item.ram}/${item.storage}) – ₹${item.price}\nhttp://localhost:3000/mobile/${item._id}`
+      `${index + 1}. ${item.brand} ${item.model} (ID: ${item.mobileId}) (${item.ram}/${item.storage}) – ₹${item.price}\n${baseUrl}/mobile/${item._id}`
   )
   .join('\n\n')}`;
 

@@ -22,7 +22,8 @@ const HomePage = () => {
   useEffect(() => {
     const fetchMobiles = async () => {
       try {
-        const res = await axios.get('http://localhost:5000/api/mobiles');
+        const res = await axios.get(`${process.env.REACT_APP_API_URL}/api/mobiles`);
+
         setMobiles(res.data);
         setFilteredMobiles(res.data);
       } catch (err) {

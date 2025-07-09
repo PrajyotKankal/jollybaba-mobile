@@ -4,7 +4,7 @@ import './LoginPage.css';
 const LoginPage = () => {
   const handleGoogleLogin = async (response) => {
     try {
-      const res = await fetch("http://localhost:5000/api/auth/google-login", {
+const res = await fetch(`${process.env.REACT_APP_API_URL}/api/auth/google-login`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ idToken: response.credential }),

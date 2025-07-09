@@ -27,7 +27,7 @@ const AdminDashboard = () => {
   const fetchMobiles = useCallback(async () => {
     try {
       setLoading(true);
-      const { data } = await axios.get('http://localhost:5000/api/mobiles', {
+      const { data } = await axios.get('${process.env.REACT_APP_API_URL}/api/mobiles', {
         headers: { Authorization: `Bearer ${token}` }
       });
       setMobiles(data);
@@ -55,7 +55,7 @@ const AdminDashboard = () => {
 
     try {
       setLoading(true);
-      await axios.post('http://localhost:5000/api/mobiles/upload', formData, {
+      await axios.post('${process.env.REACT_APP_API_URL}/api/mobiles/upload', formData, {
         headers: {
           'Content-Type': 'multipart/form-data',
           Authorization: `Bearer ${token}`
@@ -81,7 +81,7 @@ const AdminDashboard = () => {
       Object.entries(form).forEach(([key, val]) => formData.append(key, val));
       images.forEach((file) => formData.append('images', file));
 
-      await axios.put(`http://localhost:5000/api/mobiles/${editId}`, formData, {
+      await axios.put(`${process.env.REACT_APP_API_URL}/api/mobiles/${editId}`, formData, {
         headers: { Authorization: `Bearer ${token}` }
       });
 
@@ -105,7 +105,7 @@ const AdminDashboard = () => {
 
     try {
       setLoading(true);
-      await axios.delete(`http://localhost:5000/api/mobiles/${id}`, {
+      await axios.delete(`${process.env.REACT_APP_API_URL}/api/mobiles/${id}`, {
         headers: { Authorization: `Bearer ${token}` }
       });
       setMobiles(mobiles.filter((m) => m._id !== id));

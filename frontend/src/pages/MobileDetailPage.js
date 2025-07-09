@@ -20,7 +20,7 @@ const MobileDetailPage = () => {
   useEffect(() => {
     const fetchMobile = async () => {
       try {
-        const res = await axios.get(`http://localhost:5000/api/mobiles`);
+const res = await axios.get(`${process.env.REACT_APP_API_URL}/api/mobiles`);
         const found = res.data.find((m) => m._id === id);
         if (found) setMobile(found);
         else setError('Mobile not found');
