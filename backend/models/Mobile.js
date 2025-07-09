@@ -11,6 +11,16 @@ const mobileSchema = new mongoose.Schema({
   price: Number,
   color: String,
   mobileId: { type: String, unique: true }, // 👈 Add this
+  deviceType: {
+  type: String,
+  enum: ['Mobile', 'Tablet'],
+  default: 'Mobile',
+},
+networkType: {
+  type: String,
+  enum: ['5G', '4G', '3G', '2G'],
+  default: '4G',
+},
  
   createdAt: { type: Date, default: Date.now },
 });

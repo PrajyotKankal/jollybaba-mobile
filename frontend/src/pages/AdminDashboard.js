@@ -10,6 +10,7 @@ const AdminDashboard = () => {
   const [activeTab, setActiveTab] = useState('upload');
   const [mobiles, setMobiles] = useState([]);
   const [images, setImages] = useState([]);
+
   const [editId, setEditId] = useState(null);
   const [search, setSearch] = useState('');
   const [loading, setLoading] = useState(false);
@@ -19,7 +20,9 @@ const AdminDashboard = () => {
     ram: '',
     storage: '',
     price: '',
-    color: ''
+    color: '',
+    deviceType: 'Mobile',
+    networkType: '4G'
   });
 
   const navigate = useNavigate();
@@ -53,7 +56,11 @@ const AdminDashboard = () => {
     e.preventDefault();
     const formData = new FormData();
     Object.entries(form).forEach(([key, val]) => formData.append(key, val));
-    images.forEach((file) => formData.append('images', file));
+    images.forEach(({ file, rotation }) => {
+      formData.append('images', file);
+      formData.append('rotations', rotation); // Send matching rotation
+    });
+
 
     try {
       setLoading(true);
@@ -82,6 +89,9 @@ const AdminDashboard = () => {
       const formData = new FormData();
       Object.entries(form).forEach(([key, val]) => formData.append(key, val));
       images.forEach((file) => formData.append('images', file));
+
+
+
 
       await axios.put(`${API}/api/mobiles/${editId}`, formData, {
         headers: { Authorization: `Bearer ${token}` }
@@ -120,7 +130,16 @@ const AdminDashboard = () => {
   };
 
   const resetForm = () => {
-    setForm({ brand: '', model: '', ram: '', storage: '', price: '', color: '' });
+    setForm({
+      brand: '',
+      model: '',
+      ram: '',
+      storage: '',
+      price: '',
+      color: '',
+      deviceType: 'Mobile',
+      networkType: '4G'
+    });
     setImages([]);
     setEditId(null);
   };
@@ -139,17 +158,62 @@ const AdminDashboard = () => {
         {activeTab === 'upload' && (
           <form className="upload-form" onSubmit={editId ? handleUpdate : handleUpload}>
             <h2>{editId ? 'Edit Mobile' : 'Upload Mobile'}</h2>
-            {['brand', 'model', 'ram', 'storage', 'price', 'color'].map((field) => (
-              <input
-                key={field}
-                name={field}
-                type={field === 'price' ? 'number' : 'text'}
-                placeholder={field.charAt(0).toUpperCase() + field.slice(1)}
-                value={form[field]}
-                onChange={handleInputChange}
-                required
-              />
-            ))}
+            <input
+              name="brand"
+              placeholder="Brand"
+              value={form.brand}
+              onChange={handleInputChange}
+              required
+            />
+            <input
+              name="model"
+              placeholder="Model"
+              value={form.model}
+              onChange={handleInputChange}
+              required
+            />
+            <input
+              name="ram"
+              placeholder="RAM"
+              value={form.ram}
+              onChange={handleInputChange}
+              required
+            />
+            <input
+              name="storage"
+              placeholder="Storage"
+              value={form.storage}
+              onChange={handleInputChange}
+              required
+            />
+            <input
+              name="price"
+              type="number"
+              placeholder="Price"
+              value={form.price}
+              onChange={handleInputChange}
+              required
+            />
+            <input
+              name="color"
+              placeholder="Color"
+              value={form.color}
+              onChange={handleInputChange}
+              required
+            />
+
+            <select name="deviceType" value={form.deviceType} onChange={handleInputChange}>
+              <option value="Mobile">Mobile</option>
+              <option value="Tablet">Tablet</option>
+            </select>
+
+            <select name="networkType" value={form.networkType} onChange={handleInputChange}>
+              <option value="5G">5G</option>
+              <option value="4G">4G</option>
+              <option value="3G">3G</option>
+              <option value="2G">2G</option>
+            </select>
+
 
             <label className="upload-button">
               Select Images
@@ -158,22 +222,55 @@ const AdminDashboard = () => {
                 accept="image/*"
                 multiple
                 hidden
-                onChange={(e) => setImages(Array.from(e.target.files))}
+                onChange={(e) => {
+                  const newFiles = Array.from(e.target.files).map((file) => ({
+                    file,
+                    rotation: 0,
+                  }));
+                  setImages((prev) => [...prev, ...newFiles]);
+                }}
+
               />
             </label>
 
             {images.length > 0 && (
               <div className="preview-grid">
                 {images.map((img, i) => (
-                  <img
-                    key={i}
-                    src={URL.createObjectURL(img)}
-                    alt={`Preview ${i}`}
-                    className="preview-thumb"
-                  />
+                  <div key={i} className="preview-item">
+                    <img
+                      src={URL.createObjectURL(img.file)}
+                      alt={`Preview ${i}`}
+                      className="preview-thumb"
+                      style={{ transform: `rotate(${img.rotation}deg)` }}
+                    />
+                    <button
+                      type="button"
+                      className="rotate-btn"
+                      onClick={() => {
+                        const updated = [...images];
+                        updated[i].rotation = (updated[i].rotation + 90) % 360;
+                        setImages(updated);
+                      }}
+                    >
+                      🔄
+                    </button>
+
+                    <button
+                      type="button"
+                      className="preview-delete-btn"
+                      onClick={() => {
+                        const updated = images.filter((_, index) => index !== i);
+                        setImages(updated);
+                      }}
+                    >
+                      ❌
+                    </button>
+
+                  </div>
                 ))}
               </div>
             )}
+
 
             <button type="submit">{editId ? 'Update Mobile' : 'Upload Mobile'}</button>
             {editId && (

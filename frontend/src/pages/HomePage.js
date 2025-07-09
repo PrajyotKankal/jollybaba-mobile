@@ -52,30 +52,42 @@ const HomePage = () => {
   }, [mobileFiltersVisible]);
 
   useEffect(() => {
-    const applyFilters = () => {
-      let results = [...mobiles];
-      Object.entries(filters).forEach(([key, values]) => {
-        if (values.length > 0) {
-          results = results.filter((m) => values.includes(m[key]));
-        }
-      });
+  const applyFilters = () => {
+    let results = [...mobiles];
 
-      if (searchQuery.trim()) {
-        const lower = searchQuery.toLowerCase();
-        results = results.filter(
-          (m) =>
-            m.brand.toLowerCase().includes(lower) ||
-            m.model.toLowerCase().includes(lower)
-        );
+    // Apply checkbox filters
+    Object.entries(filters).forEach(([key, values]) => {
+      if (values.length > 0) {
+        results = results.filter((m) => values.includes(m[key]));
       }
+    });
 
-      setFilteredMobiles(results);
-      setCurrentPage(1);
-      setMobileFiltersVisible(false);
-    };
+    // Apply text search
+    if (searchQuery.trim()) {
+      const lower = searchQuery.toLowerCase();
+      results = results.filter((m) =>
+        [
+          m.brand,
+          m.model,
+          m.ram,
+          m.storage,
+          m.color,
+          m.condition,
+          String(m.price), // convert number to string for search
+        ]
+          .filter(Boolean) // remove undefined/null
+          .some((field) => field.toLowerCase().includes(lower))
+      );
+    }
 
-    applyFilters();
-  }, [searchQuery, filters, mobiles]);
+    setFilteredMobiles(results);
+    setCurrentPage(1);
+    setMobileFiltersVisible(false);
+  };
+
+  applyFilters();
+}, [searchQuery, filters, mobiles]);
+
 
   const unique = (key) => [...new Set(mobiles.map((m) => m[key]))];
 

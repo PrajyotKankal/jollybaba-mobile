@@ -80,8 +80,14 @@ const MobileDetailPage = () => {
                   img.style.transformOrigin = 'center center';
                 }}
               >
-                <img src={url} alt={`Mobile ${index}`} />
+                <div className="image-wrapper-with-watermark">
+                  <img src={url} alt={`Mobile ${index}`} />
+                  <div className="watermark-text">{mobile.mobileId}</div>
+                </div>
               </SwiperSlide>
+
+
+
 
             ))}
 
@@ -90,14 +96,29 @@ const MobileDetailPage = () => {
 
         <div className="mobile-detail-info">
           <h2>{mobile.brand} {mobile.model}</h2>
-          <div className="mobile-id-badge">{mobile.mobileId}</div>
+          {/* <div className="mobile-id-badge">{mobile.mobileId}</div> */}
           <p><strong>RAM:</strong> {mobile.ram}</p>
           <p><strong>Storage:</strong> {mobile.storage}</p>
           <p><strong>Color:</strong> {mobile.color}</p>
+          <p><strong>Device Type:</strong> {mobile.deviceType}</p>
+          <p><strong>Network:</strong> {mobile.networkType}</p>
+
           <p className="price">₹{mobile.price}</p>
+
           <button className="add-to-cart" onClick={() => addToCart(mobile)}>
             🛒 Add to Cart
           </button>
+          <a
+            href={`https://wa.me/917020708747?text=${encodeURIComponent(
+              `Hello, I'm interested in buying:\n\nModel: ${mobile.brand} ${mobile.model}\nRAM: ${mobile.ram}\nStorage: ${mobile.storage}\nColor: ${mobile.color}\nPrice: ₹${mobile.price}\nModel ID: ${mobile.mobileId}`
+            )}`}
+            className="buy-now-button"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+           Buy Now
+          </a>
+
         </div>
       </div>
 

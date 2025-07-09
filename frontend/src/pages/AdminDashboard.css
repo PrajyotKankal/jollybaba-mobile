@@ -341,3 +341,132 @@
     opacity: 1;
   }
 }
+
+.preview-item {
+  position: relative;
+  display: inline-block;
+  margin: 10px;
+}
+
+.preview-thumb {
+  width: 130px;
+  height: 130px;
+  object-fit: contain;
+  border: 1px solid #ccc;
+  border-radius: 10px;
+  transition: transform 0.3s ease;
+  background: #fff;
+}
+
+.rotate-btn {
+  position: absolute;
+  bottom: 4px;
+  right: 4px;
+  background: #ffffffcc;
+  border: none;
+  padding: 4px 6px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 16px;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+}
+.rotate-btn:hover {
+  background: #f0f0f0;
+}
+
+.preview-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+  margin-top: 10px;
+}
+
+.preview-item {
+  position: relative;
+  width: 120px;
+  height: 120px;
+  border-radius: 10px;
+  overflow: hidden;
+  background: #f9f9f9;
+  box-shadow: 0 0 6px rgba(0, 0, 0, 0.15);
+}
+
+.preview-thumb {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  transition: transform 0.3s ease;
+}
+
+.rotate-btn {
+  position: absolute;
+  bottom: 4px;
+  right: 4px;
+  padding: 2px 6px;
+  background: rgba(0, 0, 0, 0.6);
+  color: white;
+  font-size: 14px;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  z-index: 2;
+}
+
+.rotate-btn {
+  right: 4px;
+}
+
+.delete-btn {
+  right: 34px;
+}
+
+
+/* Stylish select dropdowns */
+.upload-form select {
+  width: 100%;
+  padding: 12px 14px;
+  margin: 10px 0;
+  font-size: 15px;
+  border: 1px solid #ddd;
+  border-radius: 10px;
+  background-color: #fdfdfd;
+  color: #333;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+  transition: border 0.3s, box-shadow 0.3s;
+  outline: none;
+  appearance: none;
+  background-image: url("data:image/svg+xml;charset=UTF-8,%3Csvg width='12' height='8' viewBox='0 0 12 8' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath fill='%23999' d='M6 8L0 0h12z'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 14px center;
+  background-size: 12px;
+}
+
+.upload-form select:focus {
+  border-color: #009087;
+  box-shadow: 0 0 0 2px rgba(0, 144, 135, 0.1);
+}
+
+.upload-form option {
+  background-color: #fff;
+  color: #333;
+}
+
+.preview-delete-btn {
+  position: absolute;
+  bottom: 6px;
+  right: 40px;
+  padding: 4px 8px;
+  background-color: rgba(231, 76, 60, 0.9);
+  color: #fff;
+  border: none;
+  font-size: 14px;
+  border-radius: 6px;
+  cursor: pointer;
+  z-index: 2;
+  transition: background-color 0.3s ease, transform 0.2s ease;
+}
+
+.preview-delete-btn:hover {
+  background-color: rgba(192, 57, 43, 0.95);
+  transform: scale(1.05);
+}

@@ -1,5 +1,4 @@
 require('dotenv').config();
-
 const express = require('express');
 const router = express.Router();
 const multer = require('multer');
@@ -10,7 +9,7 @@ const Mobile = require('../models/Mobile');
 const Counter = require('../models/Counter');
 const verifyAdmin = require('../middlewares/verifyAdmin');
 
-// Cloudinary Config
+// Cloudinary config
 cloudinary.config({
   cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
   api_key: process.env.CLOUDINARY_API_KEY,
@@ -20,9 +19,10 @@ cloudinary.config({
 // Multer memory storage
 const upload = multer({ storage: multer.memoryStorage() });
 
-// 🔧 Helper: Upload buffer to Cloudinary
-const uploadToCloudinary = async (buffer) => {
-  const resized = await sharp(buffer)
+// 🔧 Upload buffer to Cloudinary with rotation
+const uploadToCloudinary = async (buffer, rotate = 0) => {
+  const processed = await sharp(buffer)
+    .rotate(rotate)                     // 🔄 Apply rotation
     .resize({ width: 800 })
     .jpeg({ quality: 80 })
     .toBuffer();
@@ -38,7 +38,7 @@ const uploadToCloudinary = async (buffer) => {
         else reject(err);
       }
     );
-    streamifier.createReadStream(resized).pipe(stream);
+    streamifier.createReadStream(processed).pipe(stream);
   });
 };
 
@@ -57,14 +57,24 @@ router.post('/upload', verifyAdmin, upload.array('images', 5), async (req, res) 
   try {
     if (!req.files?.length) return res.status(400).json({ message: 'No images uploaded' });
 
-    const { brand, model, ram, storage, price, color, condition } = req.body;
-    const mobileId = await getNextMobileId();
+    const { brand, model, ram, storage, price, color, condition, deviceType, networkType } = req.body;
 
+    // 🔄 Parse image rotations sent as JSON string
+    let rotations = [];
+    try {
+      rotations = JSON.parse(req.body.rotations || '[]');
+    } catch (err) {
+      rotations = [];
+    }
+
+    const mobileId = await getNextMobileId();
     const imageUrls = [];
     const imagePublicIds = [];
 
-    for (const file of req.files) {
-      const { url, public_id } = await uploadToCloudinary(file.buffer);
+    for (let i = 0; i < req.files.length; i++) {
+      const file = req.files[i];
+      const rotation = rotations[i] || 0;
+      const { url, public_id } = await uploadToCloudinary(file.buffer, rotation);
       imageUrls.push(url);
       imagePublicIds.push(public_id);
     }
@@ -77,6 +87,8 @@ router.post('/upload', verifyAdmin, upload.array('images', 5), async (req, res) 
       price,
       color,
       condition,
+      deviceType,
+      networkType,
       imageUrls,
       imagePublicIds,
       mobileId,
@@ -90,16 +102,13 @@ router.post('/upload', verifyAdmin, upload.array('images', 5), async (req, res) 
   }
 });
 
-// ✅ Get All Mobiles (optionally filtered by query)
+// ✅ Get All Mobiles
 router.get('/', async (req, res) => {
   try {
-    const { brand, model, ram, storage } = req.query;
     const filter = {};
-
-    if (brand) filter.brand = brand;
-    if (model) filter.model = model;
-    if (ram) filter.ram = ram;
-    if (storage) filter.storage = storage;
+    ['brand', 'model', 'ram', 'storage'].forEach((key) => {
+      if (req.query[key]) filter[key] = req.query[key];
+    });
 
     const mobiles = await Mobile.find(filter).sort({ createdAt: -1 });
     res.json(mobiles);
@@ -109,7 +118,7 @@ router.get('/', async (req, res) => {
   }
 });
 
-// ✅ Get Single Mobile by ID
+// ✅ Get Mobile by ID
 router.get('/:id', async (req, res) => {
   try {
     const mobile = await Mobile.findById(req.params.id);
@@ -121,7 +130,7 @@ router.get('/:id', async (req, res) => {
   }
 });
 
-// ✅ Delete Mobile with Cloudinary Cleanup
+// ✅ Delete Mobile
 router.delete('/:id', verifyAdmin, async (req, res) => {
   try {
     const mobile = await Mobile.findById(req.params.id);
@@ -153,12 +162,22 @@ router.put('/:id', verifyAdmin, upload.array('images', 5), async (req, res) => {
       price,
       color,
       condition,
+      deviceType,
+      networkType,
       imagesToDelete,
+      rotations,
     } = req.body;
 
+    // 🧠 Parse deletions and rotations
     imagesToDelete = imagesToDelete ? JSON.parse(imagesToDelete) : [];
 
-    // Delete selected images from Cloudinary
+    try {
+      rotations = JSON.parse(rotations || '[]');
+    } catch (err) {
+      rotations = [];
+    }
+
+    // ❌ Delete selected images
     if (imagesToDelete.length > 0) {
       const newImageUrls = [];
       const newImagePublicIds = [];
@@ -168,7 +187,7 @@ router.put('/:id', verifyAdmin, upload.array('images', 5), async (req, res) => {
           newImageUrls.push(mobile.imageUrls[i]);
           newImagePublicIds.push(id);
         } else {
-          cloudinary.uploader.destroy(id); // no await needed
+          cloudinary.uploader.destroy(id); // async
         }
       });
 
@@ -176,17 +195,28 @@ router.put('/:id', verifyAdmin, upload.array('images', 5), async (req, res) => {
       mobile.imagePublicIds = newImagePublicIds;
     }
 
-    // Upload new images
+    // 🆕 Upload new images with rotation
     if (req.files?.length > 0) {
-      for (const file of req.files) {
-        const { url, public_id } = await uploadToCloudinary(file.buffer);
+      for (let i = 0; i < req.files.length; i++) {
+        const file = req.files[i];
+        const rotate = rotations[i] || 0;
+        const { url, public_id } = await uploadToCloudinary(file.buffer, rotate);
         mobile.imageUrls.push(url);
         mobile.imagePublicIds.push(public_id);
       }
     }
 
-    // Update fields
-    Object.assign(mobile, { brand, model, ram, storage, price, color, condition });
+    Object.assign(mobile, {
+      brand,
+      model,
+      ram,
+      storage,
+      price,
+      color,
+      condition,
+      deviceType,
+      networkType,
+    });
 
     const updated = await mobile.save();
     res.json(updated);
