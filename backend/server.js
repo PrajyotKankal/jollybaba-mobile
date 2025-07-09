@@ -1,17 +1,10 @@
-// server.js
 const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
 const dotenv = require('dotenv');
-const path = require('path');
-
-// Routes
-const authRoutes = require('./routes/authRoutes');
-const mobileRoutes = require('./routes/mobileRoutes');
 
 // Load environment variables
 dotenv.config();
-
 
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -21,20 +14,18 @@ app.use(cors());
 app.use(express.json());
 
 // Routes
-app.use('/api/auth', authRoutes);
-app.use('/api/mobiles', mobileRoutes);
+app.use('/api/auth', require('./routes/authRoutes'));
+app.use('/api/mobiles', require('./routes/mobileRoutes'));
 
-// MongoDB connection
+// Connect to MongoDB
 mongoose
   .connect(process.env.MONGO_URI, {
-    useNewUrlParser: true,
-    useUnifiedTopology: true,
-    dbName: 'jollybaba_db', // optional if included in URI
+    dbName: 'jollybaba_db',
   })
   .then(() => {
     console.log('✅ MongoDB connected');
     app.listen(PORT, () => {
-      console.log(`🚀 Server running at http://localhost:${PORT}`);
+      console.log(`🚀 Server running on port ${PORT}`);
     });
   })
   .catch((err) => {
