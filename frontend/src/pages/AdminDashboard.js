@@ -3,6 +3,7 @@ import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 import AdminNavbar from '../components/AdminNavbar';
 import ManageMobiles from '../pages/ManageMobiles';
+import imageCompression from 'browser-image-compression';
 import './AdminDashboard.css';
 
 const AdminDashboard = () => {
@@ -12,6 +13,7 @@ const AdminDashboard = () => {
   const [editId, setEditId] = useState(null);
   const [search, setSearch] = useState('');
   const [loading, setLoading] = useState(false);
+
   const [form, setForm] = useState({
     brand: '',
     model: '',
@@ -126,6 +128,31 @@ const AdminDashboard = () => {
       setLoading(false);
     }
   };
+const handleFileInput = async (e) => {
+  const files = Array.from(e.target.files);
+
+  const options = {
+    fileType: 'image/webp',         // ✅ This ensures conversion to .webp
+    maxSizeMB: 0.5,
+    maxWidthOrHeight: 800,
+    useWebWorker: true
+  };
+
+  const compressedImages = await Promise.all(
+    files.map(async (file) => {
+      try {
+        const compressed = await imageCompression(file, options);
+        return { file: compressed, rotation: 0 };
+      } catch (err) {
+        console.error('Compression error:', err);
+        return { file, rotation: 0 }; // fallback to original if compression fails
+      }
+    })
+  );
+
+  setImages((prev) => [...prev, ...compressedImages]);
+};
+
 
   const resetForm = () => {
     setForm({
@@ -177,19 +204,14 @@ const AdminDashboard = () => {
             </select>
 
             <label className="upload-button">
-              Select Images
+              Select or Capture Images
               <input
                 type="file"
                 accept="image/*"
+                capture="environment"
                 multiple
                 hidden
-                onChange={(e) => {
-                  const newFiles = Array.from(e.target.files).map((file) => ({
-                    file,
-                    rotation: 0
-                  }));
-                  setImages((prev) => [...prev, ...newFiles]);
-                }}
+                onChange={handleFileInput}
               />
             </label>
 
