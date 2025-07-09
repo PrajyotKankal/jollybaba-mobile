@@ -1,4 +1,3 @@
-// AdminDashboard.js
 import React, { useEffect, useState, useCallback } from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
@@ -10,7 +9,6 @@ const AdminDashboard = () => {
   const [activeTab, setActiveTab] = useState('upload');
   const [mobiles, setMobiles] = useState([]);
   const [images, setImages] = useState([]);
-
   const [editId, setEditId] = useState(null);
   const [search, setSearch] = useState('');
   const [loading, setLoading] = useState(false);
@@ -56,11 +54,12 @@ const AdminDashboard = () => {
     e.preventDefault();
     const formData = new FormData();
     Object.entries(form).forEach(([key, val]) => formData.append(key, val));
-    images.forEach(({ file, rotation }) => {
-      formData.append('images', file);
-      formData.append('rotations', rotation); // Send matching rotation
-    });
 
+    const rotations = images.map((img) => img.rotation || 0);
+    images.forEach(({ file }) => {
+      formData.append('images', file);
+    });
+    formData.append('rotations', JSON.stringify(rotations));
 
     try {
       setLoading(true);
@@ -84,15 +83,15 @@ const AdminDashboard = () => {
 
   const handleUpdate = async (e) => {
     e.preventDefault();
+    const formData = new FormData();
+    Object.entries(form).forEach(([key, val]) => formData.append(key, val));
+
+    const rotations = images.map((img) => img.rotation || 0);
+    images.forEach(({ file }) => formData.append('images', file));
+    formData.append('rotations', JSON.stringify(rotations));
+
     try {
       setLoading(true);
-      const formData = new FormData();
-      Object.entries(form).forEach(([key, val]) => formData.append(key, val));
-      images.forEach((file) => formData.append('images', file));
-
-
-
-
       await axios.put(`${API}/api/mobiles/${editId}`, formData, {
         headers: { Authorization: `Bearer ${token}` }
       });
@@ -114,7 +113,6 @@ const AdminDashboard = () => {
 
   const handleDelete = async (id) => {
     if (!window.confirm('Are you sure you want to delete this mobile?')) return;
-
     try {
       setLoading(true);
       await axios.delete(`${API}/api/mobiles/${id}`, {
@@ -158,49 +156,13 @@ const AdminDashboard = () => {
         {activeTab === 'upload' && (
           <form className="upload-form" onSubmit={editId ? handleUpdate : handleUpload}>
             <h2>{editId ? 'Edit Mobile' : 'Upload Mobile'}</h2>
-            <input
-              name="brand"
-              placeholder="Brand"
-              value={form.brand}
-              onChange={handleInputChange}
-              required
-            />
-            <input
-              name="model"
-              placeholder="Model"
-              value={form.model}
-              onChange={handleInputChange}
-              required
-            />
-            <input
-              name="ram"
-              placeholder="RAM"
-              value={form.ram}
-              onChange={handleInputChange}
-              required
-            />
-            <input
-              name="storage"
-              placeholder="Storage"
-              value={form.storage}
-              onChange={handleInputChange}
-              required
-            />
-            <input
-              name="price"
-              type="number"
-              placeholder="Price"
-              value={form.price}
-              onChange={handleInputChange}
-              required
-            />
-            <input
-              name="color"
-              placeholder="Color"
-              value={form.color}
-              onChange={handleInputChange}
-              required
-            />
+
+            <input name="brand" placeholder="Brand" value={form.brand} onChange={handleInputChange} required />
+            <input name="model" placeholder="Model" value={form.model} onChange={handleInputChange} required />
+            <input name="ram" placeholder="RAM" value={form.ram} onChange={handleInputChange} required />
+            <input name="storage" placeholder="Storage" value={form.storage} onChange={handleInputChange} required />
+            <input name="price" type="number" placeholder="Price" value={form.price} onChange={handleInputChange} required />
+            <input name="color" placeholder="Color" value={form.color} onChange={handleInputChange} required />
 
             <select name="deviceType" value={form.deviceType} onChange={handleInputChange}>
               <option value="Mobile">Mobile</option>
@@ -214,7 +176,6 @@ const AdminDashboard = () => {
               <option value="2G">2G</option>
             </select>
 
-
             <label className="upload-button">
               Select Images
               <input
@@ -225,11 +186,10 @@ const AdminDashboard = () => {
                 onChange={(e) => {
                   const newFiles = Array.from(e.target.files).map((file) => ({
                     file,
-                    rotation: 0,
+                    rotation: 0
                   }));
                   setImages((prev) => [...prev, ...newFiles]);
                 }}
-
               />
             </label>
 
@@ -254,7 +214,6 @@ const AdminDashboard = () => {
                     >
                       🔄
                     </button>
-
                     <button
                       type="button"
                       className="preview-delete-btn"
@@ -265,12 +224,10 @@ const AdminDashboard = () => {
                     >
                       ❌
                     </button>
-
                   </div>
                 ))}
               </div>
             )}
-
 
             <button type="submit">{editId ? 'Update Mobile' : 'Upload Mobile'}</button>
             {editId && (
