@@ -1,9 +1,10 @@
 const Mobile = require('../models/Mobile');
 const Counter = require('../models/Counter');
-const cloudinary = require('../utils/cloudinary'); // adjust the path if needed
+const cloudinary = require('cloudinary').v2;
+const sharp = require('sharp');
+const streamifier = require('streamifier');
 
-
-// Generate next custom mobile ID
+// Generate next custom mobile ID like MBL-0001
 const getNextMobileId = async () => {
   const counter = await Counter.findOneAndUpdate(
     { name: 'mobileId' },
@@ -13,22 +14,49 @@ const getNextMobileId = async () => {
   return `MBL-${counter.value.toString().padStart(4, '0')}`;
 };
 
-// Upload new mobile (Admin only)
+// Upload buffer to Cloudinary
+const uploadToCloudinary = async (buffer) => {
+  const resized = await sharp(buffer)
+    .resize({ width: 800 })
+    .jpeg({ quality: 80 })
+    .toBuffer();
+
+  return new Promise((resolve, reject) => {
+    const stream = cloudinary.uploader.upload_stream(
+      {
+        folder: 'jollybaba_mobiles',
+        transformation: [{ fetch_format: 'auto' }],
+      },
+      (error, result) => {
+        if (result) resolve({ url: result.secure_url, public_id: result.public_id });
+        else reject(error);
+      }
+    );
+    streamifier.createReadStream(resized).pipe(stream);
+  });
+};
+
+// ✅ Upload new mobile (Admin only)
 const uploadMobile = async (req, res) => {
   try {
     if (!req.files || req.files.length === 0) {
-      return res.status(400).json({ message: 'Image upload failed' });
+      return res.status(400).json({ message: 'No images uploaded' });
     }
 
-    const imageUrls = req.files.map(file => file.path);         // Secure URLs from Cloudinary
-    const imagePublicIds = req.files.map(file => file.filename); // Cloudinary public IDs
-
     const { brand, model, ram, storage, price, color, condition } = req.body;
+
+    const imageUrls = [];
+    const imagePublicIds = [];
+
+    for (const file of req.files) {
+      const { url, public_id } = await uploadToCloudinary(file.buffer);
+      imageUrls.push(url);
+      imagePublicIds.push(public_id);
+    }
+
     const mobileId = await getNextMobileId();
 
     const newMobile = new Mobile({
-      imageUrls,
-      imagePublicIds,
       brand,
       model,
       ram,
@@ -36,30 +64,20 @@ const uploadMobile = async (req, res) => {
       price,
       color,
       condition,
+      imageUrls,
+      imagePublicIds,
       mobileId,
     });
 
-    const saved = await newMobile.save();
-    res.status(201).json(saved);
+    await newMobile.save();
+    res.status(201).json(newMobile);
   } catch (err) {
-    console.error('❌ Upload error:', err);
-    res.status(500).json({ message: 'Upload failed', error: err.message });
+    console.error('❌ Upload Error:', err);
+    res.status(500).json({ message: 'Server error', error: err.message });
   }
 };
 
-// Get all mobiles (public)
-const getMobiles = async (req, res) => {
-  try {
-    const mobiles = await Mobile.find().sort({ createdAt: -1 });
-    res.status(200).json(mobiles);
-  } catch (err) {
-    console.error('❌ Fetch error:', err);
-    res.status(500).json({ message: 'Fetching mobiles failed' });
-  }
-};
-
-
-// Get all mobiles (public)
+// ✅ Get all mobiles (with filters)
 const getMobiles = async (req, res) => {
   try {
     const { brand, model, ram, storage } = req.query;
@@ -73,12 +91,27 @@ const getMobiles = async (req, res) => {
     const mobiles = await Mobile.find(query).sort({ createdAt: -1 });
     res.status(200).json(mobiles);
   } catch (err) {
-    console.error('Fetching error:', err);
+    console.error('❌ Fetch Error:', err);
     res.status(500).json({ message: 'Fetching mobiles failed' });
+  }
+};
+
+// ✅ Get single mobile by ID
+const getMobileById = async (req, res) => {
+  try {
+    const mobile = await Mobile.findById(req.params.id);
+    if (!mobile) {
+      return res.status(404).json({ message: 'Mobile not found' });
+    }
+    res.json(mobile);
+  } catch (err) {
+    console.error('❌ Fetch Mobile Error:', err);
+    res.status(500).json({ message: 'Server error', error: err.message });
   }
 };
 
 module.exports = {
   uploadMobile,
   getMobiles,
+  getMobileById,
 };
