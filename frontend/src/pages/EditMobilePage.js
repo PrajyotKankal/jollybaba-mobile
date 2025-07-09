@@ -1,24 +1,33 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import { useNavigate, useParams } from 'react-router-dom';
-import AdminNavbar from '../components/AdminNavbar'; // ✅ Import AdminNavbar
+import AdminNavbar from '../components/AdminNavbar';
 import './EditMobilePage.css';
 
 const EditMobilePage = () => {
   const { id } = useParams();
   const navigate = useNavigate();
+
   const [mobile, setMobile] = useState(null);
-  const [form, setForm] = useState({ brand: '', model: '', ram: '', storage: '', price: '', color: '' });
-  const [newImages, setNewImages] = useState([]);
+  const [form, setForm] = useState({
+    brand: '',
+    model: '',
+    ram: '',
+    storage: '',
+    price: '',
+    color: ''
+  });
+
+  const [newImages, setNewImages] = useState([]); // { file, rotation }
   const [imagesToDelete, setImagesToDelete] = useState([]);
+  const [existingImageRotations, setExistingImageRotations] = useState({}); // { publicId: rotation }
+
   const token = localStorage.getItem('token');
 
   useEffect(() => {
     const fetchMobile = async () => {
       try {
         const res = await axios.get(`${process.env.REACT_APP_API_URL}/api/mobiles/${id}`);
-
-        
         setMobile(res.data);
         setForm({
           brand: res.data.brand,
@@ -40,20 +49,25 @@ const EditMobilePage = () => {
   };
 
   const toggleDeleteImage = (publicId) => {
-    setImagesToDelete(prev =>
-      prev.includes(publicId) ? prev.filter(id => id !== publicId) : [...prev, publicId]
+    setImagesToDelete((prev) =>
+      prev.includes(publicId) ? prev.filter((id) => id !== publicId) : [...prev, publicId]
     );
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     const formData = new FormData();
+
     Object.entries(form).forEach(([key, val]) => formData.append(key, val));
-    newImages.forEach((file) => formData.append('images', file));
+    const rotations = newImages.map((img) => img.rotation || 0);
+    newImages.forEach(({ file }) => formData.append('images', file));
+
+    formData.append('rotations', JSON.stringify(rotations));
     formData.append('imagesToDelete', JSON.stringify(imagesToDelete));
+    formData.append('existingRotations', JSON.stringify(existingImageRotations));
 
     try {
-      await axios.put(`${process.env.REACT_APP_API_URL}/api/mobiles/${id}`, formData,  {
+      await axios.put(`${process.env.REACT_APP_API_URL}/api/mobiles/${id}`, formData, {
         headers: {
           Authorization: `Bearer ${token}`,
           'Content-Type': 'multipart/form-data'
@@ -67,10 +81,35 @@ const EditMobilePage = () => {
     }
   };
 
+  const handleNewImageChange = (e) => {
+    const files = Array.from(e.target.files).map((file) => ({
+      file,
+      rotation: 0
+    }));
+    setNewImages((prev) => [...prev, ...files]);
+  };
+
+  const rotateImage = (index) => {
+    const updated = [...newImages];
+    updated[index].rotation = (updated[index].rotation + 90) % 360;
+    setNewImages(updated);
+  };
+
+  const removeNewImage = (index) => {
+    const updated = newImages.filter((_, i) => i !== index);
+    setNewImages(updated);
+  };
+
+  const rotateExistingImage = (publicId) => {
+    setExistingImageRotations((prev) => ({
+      ...prev,
+      [publicId]: ((prev[publicId] || 0) + 90) % 360
+    }));
+  };
+
   return (
     <div className="edit-mobile-page">
-      {/* <AdminNavbar activeTab="edit" setActiveTab={() => {}} /> ✅ Show Admin Navbar */}
-      
+      <AdminNavbar activeTab="edit" setActiveTab={() => {}} />
       <h2>Edit Mobile</h2>
       {mobile && (
         <form onSubmit={handleSubmit} className="edit-form">
@@ -87,35 +126,57 @@ const EditMobilePage = () => {
 
           <label className="image-upload-btn">
             Upload New Images
-            <input type="file" multiple accept="image/*" hidden onChange={(e) => setNewImages([...e.target.files])} />
+            <input type="file" multiple accept="image/*" hidden onChange={handleNewImageChange} />
           </label>
 
           {newImages.length > 0 && (
             <div className="new-preview-grid">
               {newImages.map((img, i) => (
-                <img
-                  key={i}
-                  src={URL.createObjectURL(img)}
-                  alt={`New Preview ${i}`}
-                  className="preview-thumb"
-                />
+                <div key={i} className="preview-item">
+                  <img
+                    src={URL.createObjectURL(img.file)}
+                    alt={`New Preview ${i}`}
+                    className="preview-thumb"
+                    style={{ transform: `rotate(${img.rotation}deg)` }}
+                  />
+                  <button type="button" className="rotate-btn" onClick={() => rotateImage(i)}>🔄</button>
+                  <button type="button" className="preview-delete-btn" onClick={() => removeNewImage(i)}>❌</button>
+                </div>
               ))}
             </div>
           )}
 
           <div className="existing-images">
-            {mobile.imageUrls.map((url, i) => (
-              <div
-                key={i}
-                className={`image-thumb ${imagesToDelete.includes(mobile.imagePublicIds[i]) ? 'selected' : ''}`}
-                onClick={() => toggleDeleteImage(mobile.imagePublicIds[i])}
-              >
-                <img src={url} alt={`Mobile ${i}`} />
-                <span className="delete-mark">
-                  {imagesToDelete.includes(mobile.imagePublicIds[i]) ? '❌' : '🗸'}
-                </span>
-              </div>
-            ))}
+            {mobile.imageUrls.map((url, i) => {
+              const publicId = mobile.imagePublicIds[i];
+              const rotation = existingImageRotations[publicId] || 0;
+              return (
+                <div
+                  key={i}
+                  className={`image-thumb ${imagesToDelete.includes(publicId) ? 'selected' : ''}`}
+                  onClick={() => toggleDeleteImage(publicId)}
+                >
+                  <img
+                    src={url}
+                    alt={`Mobile ${i}`}
+                    style={{ transform: `rotate(${rotation}deg)` }}
+                  />
+                  <button
+                    type="button"
+                    className="rotate-btn"
+                    onClick={(e) => {
+                      e.stopPropagation(); // prevent toggling delete
+                      rotateExistingImage(publicId);
+                    }}
+                  >
+                    🔄
+                  </button>
+                  <span className="delete-mark">
+                    {imagesToDelete.includes(publicId) ? '❌' : '🗸'}
+                  </span>
+                </div>
+              );
+            })}
           </div>
 
           <button type="submit">Save Changes</button>

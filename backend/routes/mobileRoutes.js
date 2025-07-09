@@ -4,25 +4,23 @@ const router = express.Router();
 const multer = require('multer');
 const sharp = require('sharp');
 const streamifier = require('streamifier');
+const axiosLib = require('axios');
 const cloudinary = require('cloudinary').v2;
 const Mobile = require('../models/Mobile');
 const Counter = require('../models/Counter');
 const verifyAdmin = require('../middlewares/verifyAdmin');
 
-// Cloudinary config
 cloudinary.config({
   cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
   api_key: process.env.CLOUDINARY_API_KEY,
   api_secret: process.env.CLOUDINARY_API_SECRET,
 });
 
-// Multer memory storage
 const upload = multer({ storage: multer.memoryStorage() });
 
-// 🔧 Upload buffer to Cloudinary with rotation
 const uploadToCloudinary = async (buffer, rotate = 0) => {
   const processed = await sharp(buffer)
-    .rotate(rotate)                     // 🔄 Apply rotation
+    .rotate(rotate)
     .resize({ width: 800 })
     .jpeg({ quality: 80 })
     .toBuffer();
@@ -42,7 +40,6 @@ const uploadToCloudinary = async (buffer, rotate = 0) => {
   });
 };
 
-// 🔢 Generate mobile ID like MBL-0001
 const getNextMobileId = async () => {
   const counter = await Counter.findOneAndUpdate(
     { name: 'mobileId' },
@@ -59,7 +56,6 @@ router.post('/upload', verifyAdmin, upload.array('images', 5), async (req, res) 
 
     const { brand, model, ram, storage, price, color, condition, deviceType, networkType } = req.body;
 
-    // 🔄 Parse image rotations sent as JSON string
     let rotations = [];
     try {
       rotations = JSON.parse(req.body.rotations || '[]');
@@ -148,7 +144,7 @@ router.delete('/:id', verifyAdmin, async (req, res) => {
   }
 });
 
-// ✅ Update Mobile
+// ✅ Update Mobile with rotation support for existing images
 router.put('/:id', verifyAdmin, upload.array('images', 5), async (req, res) => {
   try {
     const mobile = await Mobile.findById(req.params.id);
@@ -166,16 +162,12 @@ router.put('/:id', verifyAdmin, upload.array('images', 5), async (req, res) => {
       networkType,
       imagesToDelete,
       rotations,
+      existingRotations
     } = req.body;
 
-    // 🧠 Parse deletions and rotations
     imagesToDelete = imagesToDelete ? JSON.parse(imagesToDelete) : [];
-
-    try {
-      rotations = JSON.parse(rotations || '[]');
-    } catch (err) {
-      rotations = [];
-    }
+    rotations = rotations ? JSON.parse(rotations) : [];
+    existingRotations = existingRotations ? JSON.parse(existingRotations) : {};
 
     // ❌ Delete selected images
     if (imagesToDelete.length > 0) {
@@ -187,7 +179,7 @@ router.put('/:id', verifyAdmin, upload.array('images', 5), async (req, res) => {
           newImageUrls.push(mobile.imageUrls[i]);
           newImagePublicIds.push(id);
         } else {
-          cloudinary.uploader.destroy(id); // async
+          cloudinary.uploader.destroy(id);
         }
       });
 
@@ -195,7 +187,36 @@ router.put('/:id', verifyAdmin, upload.array('images', 5), async (req, res) => {
       mobile.imagePublicIds = newImagePublicIds;
     }
 
-    // 🆕 Upload new images with rotation
+    // 🔁 Rotate existing images
+    for (const [publicId, angle] of Object.entries(existingRotations)) {
+      try {
+        const { data } = await axiosLib.get(`https://res.cloudinary.com/${cloudinary.config().cloud_name}/image/upload/${publicId}.jpg`, {
+          responseType: 'arraybuffer'
+        });
+
+        const rotatedBuffer = await sharp(data).rotate(angle).toBuffer();
+
+        const result = await new Promise((resolve, reject) => {
+          const stream = cloudinary.uploader.upload_stream(
+            { public_id: publicId, overwrite: true },
+            (err, result) => {
+              if (err) reject(err);
+              else resolve(result);
+            }
+          );
+          streamifier.createReadStream(rotatedBuffer).pipe(stream);
+        });
+
+        const index = mobile.imagePublicIds.indexOf(publicId);
+        if (index !== -1) {
+          mobile.imageUrls[index] = result.secure_url;
+        }
+      } catch (err) {
+        console.error(`❌ Rotation failed for ${publicId}:`, err.message);
+      }
+    }
+
+    // 🆕 Upload new images
     if (req.files?.length > 0) {
       for (let i = 0; i < req.files.length; i++) {
         const file = req.files[i];
