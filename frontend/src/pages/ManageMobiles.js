@@ -12,12 +12,12 @@ const ManageMobiles = ({ mobiles, search, setSearch, handleEdit, handleDelete })
 
   return (
     <div className="manage-mobiles">
-      <h2>📱 Uploaded Mobiles</h2>
+      <h2>Uploaded Mobiles</h2>
 
       <input
         type="text"
         className="search-input"
-        placeholder="🔍 Search by brand or model..."
+        placeholder="Search by brand or model..."
         value={search}
         onChange={(e) => setSearch(e.target.value)}
       />
@@ -40,8 +40,8 @@ const ManageMobiles = ({ mobiles, search, setSearch, handleEdit, handleDelete })
                 <p>{mobile.color} — ₹{mobile.price}</p>
 
                 <div className="action-buttons">
-                  <button className="edit-btn" onClick={() => handleEdit(mobile)}>✏️ Edit</button>
-                  <button className="delete-btn" onClick={() => handleDelete(mobile._id)}>🗑️ Delete</button>
+                  <button className="edit-btn" onClick={() => handleEdit(mobile)}>Edit</button>
+                  <button className="delete-btn" onClick={() => handleDelete(mobile._id)}>Delete</button>
                 </div>
               </div>
             </div>
