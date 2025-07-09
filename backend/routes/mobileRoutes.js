@@ -3,26 +3,24 @@ require('dotenv').config();
 const express = require('express');
 const router = express.Router();
 const multer = require('multer');
+const sharp = require('sharp');
 const streamifier = require('streamifier');
 const cloudinary = require('cloudinary').v2;
-const sharp = require('sharp');
 const Mobile = require('../models/Mobile');
-const verifyAdmin = require('../middlewares/verifyAdmin');
 const Counter = require('../models/Counter');
+const verifyAdmin = require('../middlewares/verifyAdmin');
 
-
-// Cloudinary config
+// Cloudinary Config
 cloudinary.config({
   cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
   api_key: process.env.CLOUDINARY_API_KEY,
   api_secret: process.env.CLOUDINARY_API_SECRET,
 });
 
-// Multer: In-memory storage
-const storage = multer.memoryStorage();
-const upload = multer({ storage });
+// Multer memory storage
+const upload = multer({ storage: multer.memoryStorage() });
 
-// ✅ Helper: Upload single buffer to Cloudinary
+// 🔧 Helper: Upload buffer to Cloudinary
 const uploadToCloudinary = async (buffer) => {
   const resized = await sharp(buffer)
     .resize({ width: 800 })
@@ -35,16 +33,16 @@ const uploadToCloudinary = async (buffer) => {
         folder: 'jollybaba_mobiles',
         transformation: [{ fetch_format: 'auto' }],
       },
-      (error, result) => {
+      (err, result) => {
         if (result) resolve({ url: result.secure_url, public_id: result.public_id });
-        else reject(error);
+        else reject(err);
       }
     );
     streamifier.createReadStream(resized).pipe(stream);
   });
 };
 
-// 🔢 Generate next unique mobile ID like MBL-0001
+// 🔢 Generate mobile ID like MBL-0001
 const getNextMobileId = async () => {
   const counter = await Counter.findOneAndUpdate(
     { name: 'mobileId' },
@@ -54,15 +52,13 @@ const getNextMobileId = async () => {
   return `MBL-${counter.value.toString().padStart(4, '0')}`;
 };
 
-
-// ✅ Upload Multiple Images Route
+// ✅ Upload Mobile
 router.post('/upload', verifyAdmin, upload.array('images', 5), async (req, res) => {
   try {
-    if (!req.files || req.files.length === 0) {
-      return res.status(400).json({ message: 'No images uploaded' });
-    }
+    if (!req.files?.length) return res.status(400).json({ message: 'No images uploaded' });
 
-    const { brand, model, ram, storage, price, color } = req.body;
+    const { brand, model, ram, storage, price, color, condition } = req.body;
+    const mobileId = await getNextMobileId();
 
     const imageUrls = [];
     const imagePublicIds = [];
@@ -73,8 +69,6 @@ router.post('/upload', verifyAdmin, upload.array('images', 5), async (req, res) 
       imagePublicIds.push(public_id);
     }
 
-    const mobileId = await getNextMobileId(); // 🆕 Generate unique ID
-
     const newMobile = new Mobile({
       brand,
       model,
@@ -82,27 +76,48 @@ router.post('/upload', verifyAdmin, upload.array('images', 5), async (req, res) 
       storage,
       price,
       color,
+      condition,
       imageUrls,
       imagePublicIds,
-      mobileId, // 🆕 Save it
+      mobileId,
     });
 
     await newMobile.save();
     res.status(201).json(newMobile);
   } catch (err) {
-    console.error('❌ Upload Route Error:', err);
-    res.status(500).json({ message: 'Server error', error: err.message });
+    console.error('❌ Upload Error:', err);
+    res.status(500).json({ message: 'Upload failed', error: err.message });
   }
 });
 
-
-// ✅ Get All Mobiles
+// ✅ Get All Mobiles (optionally filtered by query)
 router.get('/', async (req, res) => {
   try {
-    const mobiles = await Mobile.find().sort({ createdAt: -1 });
+    const { brand, model, ram, storage } = req.query;
+    const filter = {};
+
+    if (brand) filter.brand = brand;
+    if (model) filter.model = model;
+    if (ram) filter.ram = ram;
+    if (storage) filter.storage = storage;
+
+    const mobiles = await Mobile.find(filter).sort({ createdAt: -1 });
     res.json(mobiles);
   } catch (err) {
+    console.error('❌ Fetch Error:', err);
     res.status(500).json({ message: 'Server error' });
+  }
+});
+
+// ✅ Get Single Mobile by ID
+router.get('/:id', async (req, res) => {
+  try {
+    const mobile = await Mobile.findById(req.params.id);
+    if (!mobile) return res.status(404).json({ message: 'Mobile not found' });
+    res.json(mobile);
+  } catch (err) {
+    console.error('❌ Fetch One Error:', err);
+    res.status(500).json({ message: 'Server error', error: err.message });
   }
 });
 
@@ -112,25 +127,22 @@ router.delete('/:id', verifyAdmin, async (req, res) => {
     const mobile = await Mobile.findById(req.params.id);
     if (!mobile) return res.status(404).json({ message: 'Mobile not found' });
 
-    if (mobile.imagePublicIds && mobile.imagePublicIds.length > 0) {
-      for (const publicId of mobile.imagePublicIds) {
-        await cloudinary.uploader.destroy(publicId);
-      }
+    for (const publicId of mobile.imagePublicIds) {
+      await cloudinary.uploader.destroy(publicId);
     }
 
     await mobile.deleteOne();
     res.json({ message: 'Mobile and images deleted successfully' });
   } catch (err) {
-    console.error('❌ Delete Mobile Error:', err);
+    console.error('❌ Delete Error:', err);
     res.status(500).json({ message: 'Server error' });
   }
 });
 
-// ✅ Update Mobile (replace images if new provided)
+// ✅ Update Mobile
 router.put('/:id', verifyAdmin, upload.array('images', 5), async (req, res) => {
   try {
-    const { id } = req.params;
-    const mobile = await Mobile.findById(id);
+    const mobile = await Mobile.findById(req.params.id);
     if (!mobile) return res.status(404).json({ message: 'Mobile not found' });
 
     let {
@@ -140,31 +152,32 @@ router.put('/:id', verifyAdmin, upload.array('images', 5), async (req, res) => {
       storage,
       price,
       color,
-      imagesToDelete // this will be a JSON stringified array from frontend
+      condition,
+      imagesToDelete,
     } = req.body;
 
     imagesToDelete = imagesToDelete ? JSON.parse(imagesToDelete) : [];
 
-    // 1. Remove selected images
+    // Delete selected images from Cloudinary
     if (imagesToDelete.length > 0) {
       const newImageUrls = [];
       const newImagePublicIds = [];
 
-      mobile.imagePublicIds.forEach((id, index) => {
+      mobile.imagePublicIds.forEach((id, i) => {
         if (!imagesToDelete.includes(id)) {
+          newImageUrls.push(mobile.imageUrls[i]);
           newImagePublicIds.push(id);
-          newImageUrls.push(mobile.imageUrls[index]);
         } else {
-          cloudinary.uploader.destroy(id); // async cleanup
+          cloudinary.uploader.destroy(id); // no await needed
         }
       });
 
-      mobile.imagePublicIds = newImagePublicIds;
       mobile.imageUrls = newImageUrls;
+      mobile.imagePublicIds = newImagePublicIds;
     }
 
-    // 2. Upload new images if provided
-    if (req.files && req.files.length > 0) {
+    // Upload new images
+    if (req.files?.length > 0) {
       for (const file of req.files) {
         const { url, public_id } = await uploadToCloudinary(file.buffer);
         mobile.imageUrls.push(url);
@@ -172,39 +185,15 @@ router.put('/:id', verifyAdmin, upload.array('images', 5), async (req, res) => {
       }
     }
 
-    // 3. Update other fields
-    mobile.brand = brand;
-    mobile.model = model;
-    mobile.ram = ram;
-    mobile.storage = storage;
-    mobile.price = price;
-    mobile.color = color;
+    // Update fields
+    Object.assign(mobile, { brand, model, ram, storage, price, color, condition });
 
-    const updatedMobile = await mobile.save();
-    res.json(updatedMobile);
+    const updated = await mobile.save();
+    res.json(updated);
   } catch (err) {
-    console.error('❌ Update Mobile Error:', err);
-    res.status(500).json({ message: 'Server error', error: err.message });
-  }
-});
-
-
-
-// ✅ Get Single Mobile by ID
-router.get('/:id', async (req, res) => {
-  try {
-    const mobile = await Mobile.findById(req.params.id);
-    if (!mobile) {
-      return res.status(404).json({ message: 'Mobile not found' });
-    }
-    res.json(mobile);
-  } catch (err) {
-    console.error('❌ Fetch Mobile Error:', err);
+    console.error('❌ Update Error:', err);
     res.status(500).json({ message: 'Server error', error: err.message });
   }
 });
 
 module.exports = router;
-
-
-
