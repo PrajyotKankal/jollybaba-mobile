@@ -10,6 +10,7 @@ const HomePage = () => {
   const [filteredMobiles, setFilteredMobiles] = useState([]);
   const [dropdownOpen, setDropdownOpen] = useState({ brand: true, ram: false, storage: false, condition: false });
   const [mobileFiltersVisible, setMobileFiltersVisible] = useState(false);
+  
   const { searchQuery } = useContext(SearchContext);
   const sidebarRef = useRef();
   const overlayRef = useRef();
