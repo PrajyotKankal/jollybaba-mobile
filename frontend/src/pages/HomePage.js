@@ -193,9 +193,11 @@ const HomePage = () => {
                     <img src={mobile.imageUrls?.[0] || '/no-image.png'} alt={mobile.model} />
                   </div>
                   <div className="card-text">
-                    <h4>{mobile.brand} - {mobile.model}</h4>
-                    <p>Click for details</p>
-                  </div>
+  <h4>{mobile.brand} - {mobile.model}</h4>
+  <p className="price-text">₹{mobile.price}</p>
+  <p className="click-text">Click for details</p>
+</div>
+
                 </div>
               </div>
             ))

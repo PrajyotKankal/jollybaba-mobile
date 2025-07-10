@@ -54,12 +54,78 @@ const EditMobilePage = () => {
     );
   };
 
+  const rotateFileWithCanvas = (file, degrees) => {
+    return new Promise((resolve) => {
+      const img = new Image();
+      const reader = new FileReader();
+
+      reader.onload = (e) => {
+        img.src = e.target.result;
+      };
+
+      img.onload = () => {
+        const canvas = document.createElement('canvas');
+        const ctx = canvas.getContext('2d');
+        const angle = (degrees * Math.PI) / 180;
+
+        if (degrees % 180 === 0) {
+          canvas.width = img.width;
+          canvas.height = img.height;
+        } else {
+          canvas.width = img.height;
+          canvas.height = img.width;
+        }
+
+        ctx.translate(canvas.width / 2, canvas.height / 2);
+        ctx.rotate(angle);
+        ctx.drawImage(img, -img.width / 2, -img.height / 2);
+
+        canvas.toBlob((blob) => {
+          const newFile = new File([blob], file.name, { type: file.type });
+          resolve(newFile);
+        }, file.type);
+      };
+
+      reader.readAsDataURL(file);
+    });
+  };
+
+  const rotateImage = async (index) => {
+    const { file, rotation = 0 } = newImages[index];
+    const newRotation = (rotation + 90) % 360;
+    const rotatedFile = await rotateFileWithCanvas(file, newRotation);
+
+    const updated = [...newImages];
+    updated[index] = { file: rotatedFile, rotation: newRotation };
+    setNewImages(updated);
+  };
+
+  const removeNewImage = (index) => {
+    const updated = newImages.filter((_, i) => i !== index);
+    setNewImages(updated);
+  };
+
+  const rotateExistingImage = (publicId) => {
+    setExistingImageRotations((prev) => ({
+      ...prev,
+      [publicId]: ((prev[publicId] || 0) + 90) % 360
+    }));
+  };
+
+  const handleNewImageChange = (e) => {
+    const files = Array.from(e.target.files).map((file) => ({
+      file,
+      rotation: 0
+    }));
+    setNewImages((prev) => [...prev, ...files]);
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     const formData = new FormData();
 
     Object.entries(form).forEach(([key, val]) => formData.append(key, val));
-    const rotations = newImages.map((img) => img.rotation || 0);
+    const rotations = newImages.map(() => 0); // ✅ Since images are pre-rotated via canvas
     newImages.forEach(({ file }) => formData.append('images', file));
 
     formData.append('rotations', JSON.stringify(rotations));
@@ -81,35 +147,9 @@ const EditMobilePage = () => {
     }
   };
 
-  const handleNewImageChange = (e) => {
-    const files = Array.from(e.target.files).map((file) => ({
-      file,
-      rotation: 0
-    }));
-    setNewImages((prev) => [...prev, ...files]);
-  };
-
-  const rotateImage = (index) => {
-    const updated = [...newImages];
-    updated[index].rotation = (updated[index].rotation + 90) % 360;
-    setNewImages(updated);
-  };
-
-  const removeNewImage = (index) => {
-    const updated = newImages.filter((_, i) => i !== index);
-    setNewImages(updated);
-  };
-
-  const rotateExistingImage = (publicId) => {
-    setExistingImageRotations((prev) => ({
-      ...prev,
-      [publicId]: ((prev[publicId] || 0) + 90) % 360
-    }));
-  };
-
   return (
     <div className="edit-mobile-page">
-      <AdminNavbar activeTab="edit" setActiveTab={() => {}} />
+      <AdminNavbar activeTab="edit" setActiveTab={() => { }} />
       <h2>Edit Mobile</h2>
       {mobile && (
         <form onSubmit={handleSubmit} className="edit-form">

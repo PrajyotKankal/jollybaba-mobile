@@ -58,7 +58,7 @@ const baseUrl = window.location.origin;
       {cart.length > 0 && (
         <div className="cart-footer">
           <button className="enquiry-button" onClick={handleEnquiry}>
-            📩 Send Enquiry via WhatsApp
+            📩 Send Enquiry
           </button>
         </div>
       )}

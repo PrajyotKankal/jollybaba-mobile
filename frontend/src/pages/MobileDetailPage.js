@@ -25,7 +25,6 @@ const MobileDetailPage = () => {
         const found = res.data.find((m) => m._id === id);
         setMobile(found || null);
 
-        // Filter out current and show top 4 recent
         const suggestions = res.data
           .filter((m) => m._id !== id)
           .slice(0, 4);
@@ -42,6 +41,29 @@ const MobileDetailPage = () => {
     fetchMobiles();
   }, [id]);
 
+  const handleShare = async () => {
+    const shareText = `Check out this mobile:\n${mobile.brand} ${mobile.model}\nPrice: ₹${mobile.price}\n\n${window.location.href}`;
+
+    if (navigator.share) {
+      try {
+        await navigator.share({
+          title: `${mobile.brand} ${mobile.model}`,
+          text: shareText,
+          url: window.location.href,
+        });
+      } catch (err) {
+        console.log('Sharing failed:', err);
+      }
+    } else {
+      try {
+        await navigator.clipboard.writeText(window.location.href);
+        alert('Link copied to clipboard!');
+      } catch {
+        alert('Could not copy the link');
+      }
+    }
+  };
+
   if (loading) return <div className="mobile-detail-loading">Loading...</div>;
   if (error || !mobile) return <div className="mobile-detail-error">{error || 'Mobile not found'}</div>;
 
@@ -52,18 +74,20 @@ const MobileDetailPage = () => {
           <Swiper
             modules={[EffectCoverflow, Pagination]}
             effect="coverflow"
-            grabCursor={true}
-            centeredSlides={true}
+            grabCursor
+            centeredSlides
             slidesPerView={'auto'}
+            speed={600} // ✅ smoother transition (in ms)
             pagination={{ clickable: true }}
             coverflowEffect={{
               rotate: 30,
               stretch: 0,
-              depth: 100,
-              modifier: 1,
+              depth: 120,
+              modifier: 1.5,
               slideShadows: true,
             }}
           >
+
             {mobile.imageUrls?.map((url, index) => (
               <SwiperSlide
                 key={index}
@@ -85,18 +109,12 @@ const MobileDetailPage = () => {
                   <div className="watermark-text">{mobile.mobileId}</div>
                 </div>
               </SwiperSlide>
-
-
-
-
             ))}
-
           </Swiper>
         </div>
 
         <div className="mobile-detail-info">
           <h2>{mobile.brand} {mobile.model}</h2>
-          {/* <div className="mobile-id-badge">{mobile.mobileId}</div> */}
           <p><strong>RAM:</strong> {mobile.ram}</p>
           <p><strong>Storage:</strong> {mobile.storage}</p>
           <p><strong>Color:</strong> {mobile.color}</p>
@@ -105,20 +123,21 @@ const MobileDetailPage = () => {
 
           <p className="price">₹{mobile.price}</p>
 
-          <button className="add-to-cart" onClick={() => addToCart(mobile)}>
-            🛒 Add to Cart
-          </button>
+          <div className="btn-group">
+            <button className="share-button" onClick={handleShare}>🔗 Share</button>
+            <button className="add-to-cart" onClick={() => addToCart(mobile)}>🛒 Add to Cart</button>
+          </div>
+
           <a
             href={`https://wa.me/917020708747?text=${encodeURIComponent(
-              `Hello, I'm interested in buying:\n\nModel: ${mobile.brand} ${mobile.model}\nRAM: ${mobile.ram}\nStorage: ${mobile.storage}\nColor: ${mobile.color}\nPrice: ₹${mobile.price}\nModel ID: ${mobile.mobileId}`
+              `Hello, I'm interested in buying:\n\nModel: ${mobile.brand} ${mobile.model}\nRAM: ${mobile.ram}\nStorage: ${mobile.storage}\nColor: ${mobile.color}\nPrice: ₹${mobile.price}\nModel ID: ${mobile.mobileId}\n\nView Product: ${window.location.href}`
             )}`}
             className="buy-now-button"
             target="_blank"
             rel="noopener noreferrer"
           >
-           Buy Now
+            Buy Now
           </a>
-
         </div>
       </div>
 
