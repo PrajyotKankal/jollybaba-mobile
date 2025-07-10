@@ -198,7 +198,11 @@ router.put('/:id', verifyAdmin, upload.array('images', 5), async (req, res) => {
 
         const result = await new Promise((resolve, reject) => {
           const stream = cloudinary.uploader.upload_stream(
-            { public_id: publicId, overwrite: true },
+            {
+              public_id: publicId,
+              overwrite: true,
+              invalidate: true  // ✅ clears cached version from CDN
+            },
             (err, result) => {
               if (err) reject(err);
               else resolve(result);
@@ -206,6 +210,7 @@ router.put('/:id', verifyAdmin, upload.array('images', 5), async (req, res) => {
           );
           streamifier.createReadStream(rotatedBuffer).pipe(stream);
         });
+
 
         const index = mobile.imagePublicIds.indexOf(publicId);
         if (index !== -1) {
