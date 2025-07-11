@@ -149,7 +149,7 @@ const MobileDetailPage = () => {
           </div>
 
           <a
-            href={`https://wa.me/917020708747?text=${encodeURIComponent(
+            href={`https://wa.me/918055150475?text=${encodeURIComponent(
               `Hello, I'm interested in buying:\n\nModel: ${mobile.brand} ${mobile.model}\nRAM: ${mobile.ram}\nStorage: ${mobile.storage}\nColor: ${mobile.color}\nPrice: ₹${mobile.price}\nModel ID: ${mobile.mobileId}\n\nView Product: ${window.location.href}`
             )}`}
             className="buy-now-button"

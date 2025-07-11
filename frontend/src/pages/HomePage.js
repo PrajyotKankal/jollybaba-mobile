@@ -6,9 +6,9 @@ import './HomePage.css';
 
 const HomePage = () => {
   const [mobiles, setMobiles] = useState([]);
-  const [filters, setFilters] = useState({ brand: [], ram: [], storage: [], condition: [] });
+  const [filters, setFilters] = useState({ brand: [], ram: [], storage: []});
   const [filteredMobiles, setFilteredMobiles] = useState([]);
-  const [dropdownOpen, setDropdownOpen] = useState({ brand: true, ram: false, storage: false, condition: false });
+  const [dropdownOpen, setDropdownOpen] = useState({ brand: true, ram: false, storage: false });
   const [mobileFiltersVisible, setMobileFiltersVisible] = useState(false);
   const [loading, setLoading] = useState(true);
 
@@ -93,7 +93,6 @@ const HomePage = () => {
             m.ram,
             m.storage,
             m.color,
-            m.condition,
             String(m.price),
           ]
             .filter(Boolean)
@@ -133,7 +132,6 @@ const HomePage = () => {
         .map((val) => val.charAt(0).toUpperCase() + val.slice(1));
     }
 
-    // Default for 'condition' etc.
     return [...new Set(values)].sort();
   };
 
@@ -202,7 +200,7 @@ const HomePage = () => {
           <button className="close-btn" onClick={() => setMobileFiltersVisible(false)}>✕</button>
         </div>
 
-        {['brand', 'ram', 'storage', 'condition'].map((type) => (
+        {['brand', 'ram', 'storage'].map((type) => (
           <div key={type} className="filter-group">
             <div className="filter-header" onClick={() => toggleDropdown(type)}>
               <span>{type.charAt(0).toUpperCase() + type.slice(1)}</span>
@@ -230,9 +228,11 @@ const HomePage = () => {
 
       <main className="catalog-section">
         <div className="filter-topbar">
+
           <button className="filter-toggle-btn" onClick={() => setMobileFiltersVisible(true)}>
-            🔽 Sort
+            📋 Filter
           </button>
+
         </div>
 
         <h2>Available Mobiles</h2>
