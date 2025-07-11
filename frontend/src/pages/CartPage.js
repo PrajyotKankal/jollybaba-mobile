@@ -21,7 +21,7 @@ const baseUrl = window.location.origin;
   .join('\n\n')}`;
 
 
-    const phoneNumber = '917020708747';
+    const phoneNumber = '918055150475';
     const url = `https://wa.me/${phoneNumber}?text=${encodeURIComponent(message)}`;
     window.open(url, '_blank');
   };

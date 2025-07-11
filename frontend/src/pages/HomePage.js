@@ -10,7 +10,9 @@ const HomePage = () => {
   const [filteredMobiles, setFilteredMobiles] = useState([]);
   const [dropdownOpen, setDropdownOpen] = useState({ brand: true, ram: false, storage: false, condition: false });
   const [mobileFiltersVisible, setMobileFiltersVisible] = useState(false);
-  
+  const [loading, setLoading] = useState(true);
+
+
   const { searchQuery } = useContext(SearchContext);
   const sidebarRef = useRef();
   const overlayRef = useRef();
@@ -23,12 +25,14 @@ const HomePage = () => {
   useEffect(() => {
     const fetchMobiles = async () => {
       try {
+        setLoading(true); // start loading
         const res = await axios.get(`${process.env.REACT_APP_API_URL}/api/mobiles`);
-
         setMobiles(res.data);
         setFilteredMobiles(res.data);
       } catch (err) {
         console.error('Failed to load catalog:', err);
+      } finally {
+        setLoading(false); // stop loading
       }
     };
     fetchMobiles();
@@ -52,44 +56,88 @@ const HomePage = () => {
   }, [mobileFiltersVisible]);
 
   useEffect(() => {
-  const applyFilters = () => {
-    let results = [...mobiles];
+    const applyFilters = () => {
+      let results = [...mobiles];
 
-    // Apply checkbox filters
-    Object.entries(filters).forEach(([key, values]) => {
-      if (values.length > 0) {
-        results = results.filter((m) => values.includes(m[key]));
+      // Apply checkbox filters
+      Object.entries(filters).forEach(([key, values]) => {
+        if (values.length > 0) {
+          results = results.filter((m) => {
+            const val = m[key];
+
+            // Normalize RAM and Storage values
+            if ((key === 'ram' || key === 'storage') && val) {
+              const normalized = `${parseInt(val)} GB`; // convert '4gb' or '4 GB' → '4 GB'
+              return values.includes(normalized);
+            }
+
+            // Normalize brand casing
+            if (key === 'brand' && val) {
+              const normalized = val.trim().toLowerCase();
+              return values.map(v => v.toLowerCase()).includes(normalized);
+            }
+
+            // Default case
+            return values.includes(val);
+          });
+        }
+      });
+
+      // Apply text search
+      if (searchQuery.trim()) {
+        const lower = searchQuery.toLowerCase();
+        results = results.filter((m) =>
+          [
+            m.brand,
+            m.model,
+            m.ram,
+            m.storage,
+            m.color,
+            m.condition,
+            String(m.price),
+          ]
+            .filter(Boolean)
+            .some((field) => field.toLowerCase().includes(lower))
+        );
       }
-    });
 
-    // Apply text search
-    if (searchQuery.trim()) {
-      const lower = searchQuery.toLowerCase();
-      results = results.filter((m) =>
-        [
-          m.brand,
-          m.model,
-          m.ram,
-          m.storage,
-          m.color,
-          m.condition,
-          String(m.price), // convert number to string for search
-        ]
-          .filter(Boolean) // remove undefined/null
-          .some((field) => field.toLowerCase().includes(lower))
-      );
+      setFilteredMobiles(results);
+      setCurrentPage(1);
+      setMobileFiltersVisible(false);
+    };
+
+    applyFilters();
+  }, [searchQuery, filters, mobiles]);
+
+
+  const unique = (key) => {
+    let values = mobiles.map((m) => m[key]).filter(Boolean);
+
+    if (key === 'ram' || key === 'storage') {
+      const seen = new Set();
+      return values
+        .map((val) => {
+          const num = parseInt(val); // Extract number from "128GB", "128 GB", etc.
+          return isNaN(num) ? null : num;
+        })
+        .filter((val) => val !== null && !seen.has(val) && seen.add(val))
+        .sort((a, b) => a - b)
+        .map((num) => `${num} GB`);
     }
 
-    setFilteredMobiles(results);
-    setCurrentPage(1);
-    setMobileFiltersVisible(false);
+    if (key === 'brand') {
+      const seen = new Set();
+      return values
+        .map((val) => val.trim().toLowerCase())
+        .filter((val) => !seen.has(val) && seen.add(val))
+        .map((val) => val.charAt(0).toUpperCase() + val.slice(1));
+    }
+
+    // Default for 'condition' etc.
+    return [...new Set(values)].sort();
   };
 
-  applyFilters();
-}, [searchQuery, filters, mobiles]);
 
-
-  const unique = (key) => [...new Set(mobiles.map((m) => m[key]))];
 
   const handleCheckboxChange = (type, value) => {
     setFilters((prev) => {
@@ -137,7 +185,15 @@ const HomePage = () => {
   };
 
   return (
+
     <div className="homepage-grid">
+      {loading && (
+        <div className="spinner-overlay">
+          <div className="elegant-spinner"></div>
+          <div className="spinner-text">Loading Mobiles...</div>
+        </div>
+      )}
+
       {mobileFiltersVisible && <div className="overlay" ref={overlayRef}></div>}
 
       <aside className={`filter-sidebar ${mobileFiltersVisible ? 'visible' : ''}`} ref={sidebarRef}>
@@ -192,13 +248,14 @@ const HomePage = () => {
                   <div className="image-wrapper">
                     <img src={mobile.imageUrls?.[0] || '/no-image.png'} alt={mobile.model} />
                   </div>
-                  <div className="card-text">
-  <h4>{mobile.brand} - {mobile.model}</h4>
-  <p className="price-text">₹{mobile.price}</p>
-  <p className="click-text">Click for details</p>
-</div>
-
+                  <div className="card-text modern">
+                    <p className="brand-text">{mobile.brand}</p>
+                    <h4 className="model-text">{mobile.model}</h4>
+                    <p className="price-text">₹{mobile.price}</p>
+                  </div>
                 </div>
+
+
               </div>
             ))
           ) : (

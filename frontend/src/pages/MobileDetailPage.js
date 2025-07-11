@@ -4,6 +4,8 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { CartContext } from '../context/CartContext';
 import { Swiper, SwiperSlide } from 'swiper/react';
 import { EffectCoverflow, Pagination } from 'swiper/modules';
+import { toast, ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 import 'swiper/css';
 import 'swiper/css/effect-coverflow';
 import 'swiper/css/pagination';
@@ -25,9 +27,7 @@ const MobileDetailPage = () => {
         const found = res.data.find((m) => m._id === id);
         setMobile(found || null);
 
-        const suggestions = res.data
-          .filter((m) => m._id !== id)
-          .slice(0, 4);
+        const suggestions = res.data.filter((m) => m._id !== id).slice(0, 4);
         setSuggestedMobiles(suggestions);
 
         if (!found) setError('Mobile not found');
@@ -77,7 +77,7 @@ const MobileDetailPage = () => {
             grabCursor
             centeredSlides
             slidesPerView={'auto'}
-            speed={600} // ✅ smoother transition (in ms)
+            speed={600}
             pagination={{ clickable: true }}
             coverflowEffect={{
               rotate: 30,
@@ -87,7 +87,6 @@ const MobileDetailPage = () => {
               slideShadows: true,
             }}
           >
-
             {mobile.imageUrls?.map((url, index) => (
               <SwiperSlide
                 key={index}
@@ -125,7 +124,28 @@ const MobileDetailPage = () => {
 
           <div className="btn-group">
             <button className="share-button" onClick={handleShare}>🔗 Share</button>
-            <button className="add-to-cart" onClick={() => addToCart(mobile)}>🛒 Add to Cart</button>
+            <button
+              className="add-to-cart"
+              onClick={() => {
+                addToCart(mobile);
+                toast.success(`${mobile.brand} ${mobile.model} added to cart!`, {
+                  position: 'top-center',
+                  autoClose: 1000,
+                  hideProgressBar: true,
+                  closeOnClick: true,
+                  pauseOnHover: false,
+                  draggable: false,
+                  style: {
+                    fontSize: '14px',
+                    borderRadius: '8px',
+                    textAlign: 'center',
+                  },
+                });
+
+              }}
+            >
+              🛒 Add to Cart
+            </button>
           </div>
 
           <a
@@ -158,6 +178,9 @@ const MobileDetailPage = () => {
           </div>
         </div>
       )}
+
+      <ToastContainer newestOnTop closeButton={false} />
+
     </div>
   );
 };

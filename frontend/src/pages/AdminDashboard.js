@@ -128,30 +128,30 @@ const AdminDashboard = () => {
       setLoading(false);
     }
   };
-const handleFileInput = async (e) => {
-  const files = Array.from(e.target.files);
+  const handleFileInput = async (e) => {
+    const files = Array.from(e.target.files);
 
-  const options = {
-    fileType: 'image/webp',         // ✅ This ensures conversion to .webp
-    maxSizeMB: 0.5,
-    maxWidthOrHeight: 800,
-    useWebWorker: true
+    const options = {
+      fileType: 'image/webp',         // ✅ This ensures conversion to .webp
+      maxSizeMB: 0.5,
+      maxWidthOrHeight: 800,
+      useWebWorker: true
+    };
+
+    const compressedImages = await Promise.all(
+      files.map(async (file) => {
+        try {
+          const compressed = await imageCompression(file, options);
+          return { file: compressed, rotation: 0 };
+        } catch (err) {
+          console.error('Compression error:', err);
+          return { file, rotation: 0 }; // fallback to original if compression fails
+        }
+      })
+    );
+
+    setImages((prev) => [...prev, ...compressedImages]);
   };
-
-  const compressedImages = await Promise.all(
-    files.map(async (file) => {
-      try {
-        const compressed = await imageCompression(file, options);
-        return { file: compressed, rotation: 0 };
-      } catch (err) {
-        console.error('Compression error:', err);
-        return { file, rotation: 0 }; // fallback to original if compression fails
-      }
-    })
-  );
-
-  setImages((prev) => [...prev, ...compressedImages]);
-};
 
 
   const resetForm = () => {
@@ -203,17 +203,34 @@ const handleFileInput = async (e) => {
               <option value="2G">2G</option>
             </select>
 
-            <label className="upload-button">
-              Select or Capture Images
-              <input
-                type="file"
-                accept="image/*"
-                capture="environment"
-                multiple
-                hidden
-                onChange={handleFileInput}
-              />
-            </label>
+            <div className="image-upload-options">
+
+              <label className="upload-button">
+                Capture from Camera
+                <input
+                  type="file"
+                  accept="image/*"
+                  capture="environment"
+                  multiple
+                  hidden
+                  onChange={handleFileInput}
+                />
+              </label>
+
+              <label className="upload-button">
+                Select from Gallery
+                <input
+                  type="file"
+                  accept="image/*"
+                  multiple
+                  hidden
+                  onChange={handleFileInput}
+                />
+              </label>
+
+            </div>
+
+
 
             {images.length > 0 && (
               <div className="preview-grid">
