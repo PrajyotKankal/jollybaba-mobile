@@ -16,6 +16,7 @@ import Navbar from './components/Navbar';
 import Footer from './components/Footer';
 import { SearchProvider } from './context/SearchContext';
 import EditMobilePage from './pages/EditMobilePage';
+import { UserTypeProvider } from './context/UserTypeContext';
 import './index.css';
 
 const Layout = () => {
@@ -47,11 +48,13 @@ const Layout = () => {
 
 function App() {
   return (
+    <UserTypeProvider>
     <SearchProvider>
       <Router>
         <Layout />
       </Router>
     </SearchProvider>
+    </UserTypeProvider>
   );
 }
 

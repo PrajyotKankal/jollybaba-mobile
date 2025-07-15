@@ -5,6 +5,8 @@ import { CartContext } from '../context/CartContext';
 import { Swiper, SwiperSlide } from 'swiper/react';
 import { EffectCoverflow, Pagination } from 'swiper/modules';
 import { toast, ToastContainer } from 'react-toastify';
+import { UserTypeContext } from '../context/UserTypeContext';
+
 import 'react-toastify/dist/ReactToastify.css';
 import 'swiper/css';
 import 'swiper/css/effect-coverflow';
@@ -14,6 +16,8 @@ import './MobileDetailPage.css';
 const MobileDetailPage = () => {
   const { id } = useParams();
   const { addToCart } = useContext(CartContext);
+  const { userType } = useContext(UserTypeContext);
+
   const [mobile, setMobile] = useState(null);
   const [suggestedMobiles, setSuggestedMobiles] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -120,7 +124,10 @@ const MobileDetailPage = () => {
           <p><strong>Device Type:</strong> {mobile.deviceType}</p>
           <p><strong>Network:</strong> {mobile.networkType}</p>
 
-          <p className="price">₹{mobile.price}</p>
+          <p className="price">
+            ₹{userType === 'Dealer' ? mobile.dealerPrice : mobile.retailPrice}
+          </p>
+
 
           <div className="btn-group">
             <button className="share-button" onClick={handleShare}>🔗 Share</button>
@@ -150,7 +157,7 @@ const MobileDetailPage = () => {
 
           <a
             href={`https://wa.me/918055150475?text=${encodeURIComponent(
-              `Hello, I'm interested in buying:\n\nModel: ${mobile.brand} ${mobile.model}\nRAM: ${mobile.ram}\nStorage: ${mobile.storage}\nColor: ${mobile.color}\nPrice: ₹${mobile.price}\nModel ID: ${mobile.mobileId}\n\nView Product: ${window.location.href}`
+              `Hello, I'm interested in buying:\n\nModel: ${mobile.brand} ${mobile.model}\nRAM: ${mobile.ram}\nStorage: ${mobile.storage}\nColor: ${mobile.color}\nPrice: ₹${userType === 'Dealer' ? mobile.dealerPrice : mobile.retailPrice}\nModel ID: ${mobile.mobileId}\n\nView Product: ${window.location.href}`
             )}`}
             className="buy-now-button"
             target="_blank"
@@ -171,7 +178,9 @@ const MobileDetailPage = () => {
                 <div className="suggested-info">
                   <p className="brand">{m.brand}</p>
                   <p className="model">{m.model}</p>
-                  <p className="price">₹{m.price}</p>
+                  <p className="price">
+                    ₹{userType === 'Dealer' ? m.dealerPrice : m.retailPrice}
+                  </p>
                 </div>
               </div>
             ))}

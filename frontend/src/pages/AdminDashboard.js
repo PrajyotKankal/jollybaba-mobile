@@ -19,11 +19,13 @@ const AdminDashboard = () => {
     model: '',
     ram: '',
     storage: '',
-    price: '',
+    retailPrice: '',
+    dealerPrice: '',
     color: '',
     deviceType: 'Mobile',
     networkType: '4G'
   });
+
 
   const navigate = useNavigate();
   const token = localStorage.getItem('token');
@@ -154,20 +156,22 @@ const AdminDashboard = () => {
   };
 
 
-  const resetForm = () => {
-    setForm({
-      brand: '',
-      model: '',
-      ram: '',
-      storage: '',
-      price: '',
-      color: '',
-      deviceType: 'Mobile',
-      networkType: '4G'
-    });
-    setImages([]);
-    setEditId(null);
-  };
+ const resetForm = () => {
+  setForm({
+    brand: '',
+    model: '',
+    ram: '',
+    storage: '',
+    retailPrice: '',
+    dealerPrice: '',
+    color: '',
+    deviceType: 'Mobile',
+    networkType: '4G'
+  });
+  setImages([]);
+  setEditId(null);
+};
+
 
   return (
     <div className="admin-dashboard">
@@ -188,7 +192,22 @@ const AdminDashboard = () => {
             <input name="model" placeholder="Model" value={form.model} onChange={handleInputChange} required />
             <input name="ram" placeholder="RAM" value={form.ram} onChange={handleInputChange} required />
             <input name="storage" placeholder="Storage" value={form.storage} onChange={handleInputChange} required />
-            <input name="price" type="number" placeholder="Price" value={form.price} onChange={handleInputChange} required />
+            <input
+              name="retailPrice"
+              type="number"
+              placeholder="Retail Price"
+              value={form.retailPrice}
+              onChange={handleInputChange}
+              required
+            />
+            <input
+              name="dealerPrice"
+              type="number"
+              placeholder="Wholesale Price"
+              value={form.dealerPrice}
+              onChange={handleInputChange}
+              required
+            />
             <input name="color" placeholder="Color" value={form.color} onChange={handleInputChange} required />
 
             <select name="deviceType" value={form.deviceType} onChange={handleInputChange}>

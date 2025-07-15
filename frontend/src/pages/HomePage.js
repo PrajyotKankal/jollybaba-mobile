@@ -2,18 +2,22 @@ import React, { useEffect, useState, useContext, useRef } from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 import { SearchContext } from '../context/SearchContext';
+import { UserTypeContext } from '../context/UserTypeContext';
+
 import './HomePage.css';
 
 const HomePage = () => {
   const [mobiles, setMobiles] = useState([]);
-  const [filters, setFilters] = useState({ brand: [], ram: [], storage: []});
+  const [filters, setFilters] = useState({ brand: [], ram: [], storage: [] });
   const [filteredMobiles, setFilteredMobiles] = useState([]);
   const [dropdownOpen, setDropdownOpen] = useState({ brand: true, ram: false, storage: false });
   const [mobileFiltersVisible, setMobileFiltersVisible] = useState(false);
   const [loading, setLoading] = useState(true);
 
+  const { userType } = useContext(UserTypeContext);
 
   const { searchQuery } = useContext(SearchContext);
+
   const sidebarRef = useRef();
   const overlayRef = useRef();
   const navigate = useNavigate();
@@ -251,7 +255,11 @@ const HomePage = () => {
                   <div className="card-text modern">
                     <p className="brand-text">{mobile.brand}</p>
                     <h4 className="model-text">{mobile.model}</h4>
-                    <p className="price-text">₹{mobile.price}</p>
+                    <p className="price-text">
+                      ₹{mobile[userType === 'Dealer' ? 'dealerPrice' : 'retailPrice'] || 'N/A'}
+                    </p>
+
+
                   </div>
                 </div>
 

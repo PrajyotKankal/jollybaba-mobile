@@ -54,7 +54,15 @@ router.post('/upload', verifyAdmin, upload.array('images', 5), async (req, res) 
   try {
     if (!req.files?.length) return res.status(400).json({ message: 'No images uploaded' });
 
-    const { brand, model, ram, storage, price, color, condition, deviceType, networkType } = req.body;
+
+    const { brand, model, ram, storage, retailPrice, dealerPrice, color, condition, deviceType, networkType } = req.body;
+
+    if (!retailPrice || !dealerPrice) {
+      return res.status(400).json({ message: 'Retail and Dealer price are required' });
+    }
+
+
+
 
     let rotations = [];
     try {
@@ -80,7 +88,8 @@ router.post('/upload', verifyAdmin, upload.array('images', 5), async (req, res) 
       model,
       ram,
       storage,
-      price,
+      retailPrice,
+      dealerPrice,
       color,
       condition,
       deviceType,
@@ -89,6 +98,7 @@ router.post('/upload', verifyAdmin, upload.array('images', 5), async (req, res) 
       imagePublicIds,
       mobileId,
     });
+
 
     await newMobile.save();
     res.status(201).json(newMobile);
@@ -237,12 +247,14 @@ router.put('/:id', verifyAdmin, upload.array('images', 5), async (req, res) => {
       model,
       ram,
       storage,
-      price,
+      retailPrice,
+      dealerPrice,
       color,
       condition,
       deviceType,
       networkType,
     });
+
 
     const updated = await mobile.save();
     res.json(updated);

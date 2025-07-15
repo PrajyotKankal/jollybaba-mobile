@@ -1,7 +1,8 @@
-import React, { useContext, useState } from 'react';
+import React, { useContext } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { CartContext } from '../context/CartContext';
 import { SearchContext } from '../context/SearchContext';
+import { UserTypeContext } from '../context/UserTypeContext';
 import './Navbar.css';
 
 const Navbar = () => {
@@ -11,6 +12,7 @@ const Navbar = () => {
   const isAdminPage = location.pathname.startsWith('/admin');
   const { cart } = useContext(CartContext);
   const { searchQuery, setSearchQuery } = useContext(SearchContext);
+  const { userType, setUserType } = useContext(UserTypeContext);
 
   const handleLogout = () => {
     localStorage.removeItem('token');
@@ -37,22 +39,24 @@ const Navbar = () => {
     }
   };
 
- const handleLogoClick = (e) => {
-  if (location.pathname === '/') {
-    e.preventDefault(); // prevent re-routing if already on home
-    const searchBtn = document.querySelector('.search-button');
-    if (searchBtn) searchBtn.click(); // re-trigger search on homepage
-  }
-};
+  const handleLogoClick = (e) => {
+    if (location.pathname === '/') {
+      e.preventDefault();
+      const searchBtn = document.querySelector('.search-button');
+      if (searchBtn) searchBtn.click();
+    }
+  };
 
+  const toggleUserType = () => {
+    setUserType((prev) => (prev === 'Retailer' ? 'Dealer' : 'Retailer'));
+  };
 
   return (
     <nav className="navbar">
       <div className="navbar-row">
         <Link to="/" className="navbar-logo" onClick={handleLogoClick}>
-  JB
-</Link>
-
+          JB
+        </Link>
 
         <div className="navbar-right">
           {!isAdminPage && (
@@ -65,19 +69,23 @@ const Navbar = () => {
                 onChange={(e) => setSearchQuery(e.target.value)}
                 onKeyDown={handleKeyDown}
               />
-              {/* <button className="search-btn search-button" onClick={triggerSearch}>
-                🔍
-              </button> */}
             </div>
           )}
 
           {!isAdminPage && (
-           <Link to="/cart" className="cart-button">
-  🛒
-  {cart.length > 0 && <span className="cart-count">{cart.length}</span>}
-</Link>
+            <Link to="/cart" className="cart-button">
+              🛒
+              {cart.length > 0 && <span className="cart-count">{cart.length}</span>}
+            </Link>
+          )}
 
+          {!isAdminPage && (
+            <div className="user-type-toggle">
+              <button onClick={toggleUserType}>
+                Switch to {userType === 'Retailer' ? 'Dealer' : 'Retailer'}
+              </button>
 
+            </div>
           )}
         </div>
       </div>
