@@ -65,7 +65,11 @@ const MobileCard = ({ mobile, navigate, handleEdit, handleDelete }) => {
         <h3 className="mobile-title">{mobile.brand} {mobile.model}</h3>
         <div className="badge-id">{mobile.mobileId}</div>
         <p className="spec-line">{mobile.ram} / {mobile.storage}</p>
-        <p className="spec-line">{mobile.color} — ₹{mobile.price}</p>
+        <p className="spec-line">
+          {mobile.color} —
+          <span className="price-label">Retail:</span> ₹{Number(mobile.retailPrice).toLocaleString('en-IN')}
+          <span className="price-label">Dealer:</span> ₹{Number(mobile.dealerPrice).toLocaleString('en-IN')}
+        </p>
 
         <div className="action-buttons">
           <button className="edit-btn" onClick={handleEditClick}>Edit</button>

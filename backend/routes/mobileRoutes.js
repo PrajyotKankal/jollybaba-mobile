@@ -165,7 +165,8 @@ router.put('/:id', verifyAdmin, upload.array('images', 5), async (req, res) => {
       model,
       ram,
       storage,
-      price,
+      retailPrice,
+      dealerPrice,
       color,
       condition,
       deviceType,
@@ -174,6 +175,7 @@ router.put('/:id', verifyAdmin, upload.array('images', 5), async (req, res) => {
       rotations,
       existingRotations
     } = req.body;
+
 
     imagesToDelete = imagesToDelete ? JSON.parse(imagesToDelete) : [];
     rotations = rotations ? JSON.parse(rotations) : [];
@@ -254,6 +256,7 @@ router.put('/:id', verifyAdmin, upload.array('images', 5), async (req, res) => {
       deviceType,
       networkType,
     });
+
 
 
     const updated = await mobile.save();

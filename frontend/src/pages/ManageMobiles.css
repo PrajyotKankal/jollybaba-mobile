@@ -166,3 +166,9 @@
     width: 100%;
   }
 }
+
+.price-label {
+  margin-left: 8px;
+  font-weight: 500;
+  color: var(--muted-text);
+}

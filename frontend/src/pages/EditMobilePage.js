@@ -14,9 +14,11 @@ const EditMobilePage = () => {
     model: '',
     ram: '',
     storage: '',
-    price: '',
+    retailPrice: '',
+    dealerPrice: '',
     color: ''
   });
+
 
   const [newImages, setNewImages] = useState([]); // { file, rotation }
   const [imagesToDelete, setImagesToDelete] = useState([]);
@@ -34,7 +36,8 @@ const EditMobilePage = () => {
           model: res.data.model,
           ram: res.data.ram,
           storage: res.data.storage,
-          price: res.data.price,
+          retailPrice: res.data.retailPrice,
+          dealerPrice: res.data.dealerPrice,
           color: res.data.color
         });
       } catch (err) {
@@ -153,16 +156,26 @@ const EditMobilePage = () => {
       <h2>Edit Mobile</h2>
       {mobile && (
         <form onSubmit={handleSubmit} className="edit-form">
-          {['brand', 'model', 'ram', 'storage', 'price', 'color'].map((field) => (
+          {['brand', 'model', 'ram', 'storage', 'retailPrice', 'dealerPrice', 'color'].map((field) => (
             <input
               key={field}
               name={field}
+             type={field.toLowerCase().includes('price') ? 'number' : 'text'}
+min={field.toLowerCase().includes('price') ? 1 : undefined}
+
               value={form[field]}
               onChange={handleInputChange}
-              placeholder={field.charAt(0).toUpperCase() + field.slice(1)}
+              placeholder={
+                field === 'retailPrice'
+                  ? 'Retail Price'
+                  : field === 'dealerPrice'
+                    ? 'Wholesale Price'
+                    : field.charAt(0).toUpperCase() + field.slice(1)
+              }
               required
             />
           ))}
+
 
           <label className="image-upload-btn">
             Upload New Images
