@@ -1,4 +1,3 @@
-// models/Mobile.js
 const mongoose = require('mongoose');
 
 const mobileSchema = new mongoose.Schema({
@@ -26,6 +25,8 @@ const mobileSchema = new mongoose.Schema({
     enum: ['5G', '4G', '3G', '2G'],
     default: '4G',
   },
+
+  description: { type: String }, 
 
   createdAt: { type: Date, default: Date.now },
 });

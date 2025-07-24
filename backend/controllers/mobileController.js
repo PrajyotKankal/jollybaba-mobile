@@ -43,8 +43,17 @@ const uploadMobile = async (req, res) => {
       return res.status(400).json({ message: 'No images uploaded' });
     }
 
-    const { brand, model, ram, storage, retailPrice, dealerPrice, color, condition } = req.body;
-
+    const {
+      brand,
+      model,
+      ram,
+      storage,
+      retailPrice,
+      dealerPrice,
+      color,
+      condition,
+      description, // ✅ extract description from request body
+    } = req.body;
 
     const imageUrls = [];
     const imagePublicIds = [];
@@ -58,19 +67,19 @@ const uploadMobile = async (req, res) => {
     const mobileId = await getNextMobileId();
 
     const newMobile = new Mobile({
-  brand,
-  model,
-  ram,
-  storage,
-  retailPrice,
-  dealerPrice,
-  color,
-  condition,
-  imageUrls,
-  imagePublicIds,
-  mobileId,
-});
-
+      brand,
+      model,
+      ram,
+      storage,
+      retailPrice,
+      dealerPrice,
+      color,
+      condition,
+      imageUrls,
+      imagePublicIds,
+      mobileId,
+      description, 
+    });
 
     await newMobile.save();
     res.status(201).json(newMobile);
@@ -79,6 +88,7 @@ const uploadMobile = async (req, res) => {
     res.status(500).json({ message: 'Server error', error: err.message });
   }
 };
+
 
 // ✅ Get all mobiles (with filters)
 const getMobiles = async (req, res) => {
