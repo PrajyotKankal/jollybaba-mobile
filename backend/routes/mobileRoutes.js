@@ -138,6 +138,24 @@ router.get('/:id', async (req, res) => {
   }
 });
 
+// ✅ Toggle Out-of-Stock Status
+router.patch('/:id/out-of-stock', verifyAdmin, async (req, res) => {
+  try {
+    const mobile = await Mobile.findById(req.params.id);
+    if (!mobile) return res.status(404).json({ message: 'Mobile not found' });
+
+    // Toggle the flag (or you can use req.body.status if you want full control)
+    mobile.isOutOfStock = !mobile.isOutOfStock;
+
+    await mobile.save();
+    res.json({ message: 'Stock status updated', isOutOfStock: mobile.isOutOfStock });
+  } catch (err) {
+    console.error('❌ Out-of-stock Toggle Error:', err);
+    res.status(500).json({ message: 'Server error', error: err.message });
+  }
+});
+
+
 // ✅ Delete Mobile
 router.delete('/:id', verifyAdmin, async (req, res) => {
   try {

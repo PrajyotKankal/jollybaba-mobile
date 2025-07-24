@@ -26,7 +26,12 @@ const mobileSchema = new mongoose.Schema({
     default: '4G',
   },
 
-  description: { type: String }, 
+  description: { type: String },
+
+  isOutOfStock: {
+    type: Boolean,
+    default: false,
+  },
 
   createdAt: { type: Date, default: Date.now },
 });

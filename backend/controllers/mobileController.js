@@ -109,6 +109,25 @@ const getMobiles = async (req, res) => {
   }
 };
 
+// ✅ Toggle Out of Stock status (Admin only)
+const toggleStockStatus = async (req, res) => {
+  try {
+    const mobile = await Mobile.findById(req.params.id);
+    if (!mobile) {
+      return res.status(404).json({ message: 'Mobile not found' });
+    }
+
+    mobile.isOutOfStock = !mobile.isOutOfStock;
+    await mobile.save();
+
+    res.json({ message: 'Stock status updated', isOutOfStock: mobile.isOutOfStock });
+  } catch (err) {
+    console.error('❌ Toggle Stock Error:', err);
+    res.status(500).json({ message: 'Server error', error: err.message });
+  }
+};
+
+
 // ✅ Get single mobile by ID
 const getMobileById = async (req, res) => {
   try {
@@ -127,4 +146,6 @@ module.exports = {
   uploadMobile,
   getMobiles,
   getMobileById,
+  toggleStockStatus, // ✅ add this
+
 };
