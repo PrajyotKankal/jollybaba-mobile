@@ -16,8 +16,13 @@ const EditMobilePage = () => {
     storage: '',
     retailPrice: '',
     dealerPrice: '',
-    color: ''
+    color: '',
+    description: '',
+    deviceType: 'Mobile',      // ✅ added
+    networkType: '4G'          // ✅ added
   });
+
+
 
 
   const [newImages, setNewImages] = useState([]); // { file, rotation }
@@ -38,8 +43,13 @@ const EditMobilePage = () => {
           storage: res.data.storage,
           retailPrice: res.data.retailPrice,
           dealerPrice: res.data.dealerPrice,
-          color: res.data.color
+          color: res.data.color,
+          description: res.data.description || '',
+          deviceType: res.data.deviceType || 'Mobile',   // ✅
+          networkType: res.data.networkType || '4G'      // ✅
         });
+
+
       } catch (err) {
         console.error('Error loading mobile:', err);
       }
@@ -157,11 +167,13 @@ const EditMobilePage = () => {
       {mobile && (
         <form onSubmit={handleSubmit} className="edit-form">
           {['brand', 'model', 'ram', 'storage', 'retailPrice', 'dealerPrice', 'color'].map((field) => (
+
+
             <input
               key={field}
               name={field}
-             type={field.toLowerCase().includes('price') ? 'number' : 'text'}
-min={field.toLowerCase().includes('price') ? 1 : undefined}
+              type={field.toLowerCase().includes('price') ? 'number' : 'text'}
+              min={field.toLowerCase().includes('price') ? 1 : undefined}
 
               value={form[field]}
               onChange={handleInputChange}
@@ -174,7 +186,49 @@ min={field.toLowerCase().includes('price') ? 1 : undefined}
               }
               required
             />
+
           ))}
+          <textarea
+            name="description"
+            placeholder="Write full mobile description here..."
+            value={form.description}
+            onChange={handleInputChange}
+            rows={5}
+            style={{
+              padding: '10px',
+              borderRadius: '8px',
+              border: '1px solid #ccc',
+              resize: 'vertical',
+              fontSize: '14px',
+              marginTop: '6px'
+            }}
+          />
+
+          <select
+            name="deviceType"
+            value={form.deviceType}
+            onChange={handleInputChange}
+            required
+            style={{ marginTop: '10px' }}
+          >
+            <option value="Mobile">Mobile</option>
+            <option value="Tablet">Tablet</option>
+          </select>
+
+          <select
+            name="networkType"
+            value={form.networkType}
+            onChange={handleInputChange}
+            required
+            style={{ marginTop: '10px' }}
+          >
+            <option value="5G">5G</option>
+            <option value="4G">4G</option>
+            <option value="3G">3G</option>
+            <option value="2G">2G</option>
+          </select>
+
+
 
 
           <label className="image-upload-btn">

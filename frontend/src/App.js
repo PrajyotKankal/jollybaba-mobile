@@ -14,9 +14,13 @@ import MobileDetailPage from './pages/MobileDetailPage';
 import CartPage from './pages/CartPage';
 import Navbar from './components/Navbar';
 import Footer from './components/Footer';
-import { SearchProvider } from './context/SearchContext';
 import EditMobilePage from './pages/EditMobilePage';
+import { SearchProvider } from './context/SearchContext';
 import { UserTypeProvider } from './context/UserTypeContext';
+
+import { ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
+
 import './index.css';
 
 const Layout = () => {
@@ -37,11 +41,13 @@ const Layout = () => {
           <Route path="/mobile/:id" element={<MobileDetailPage />} />
           <Route path="/admin/edit/:id" element={<EditMobilePage />} />
           <Route path="*" element={<div>404 Not Found</div>} />
-
         </Routes>
       </div>
 
       {!isAdminRoute && <Footer />}
+
+      {/* ✅ Global toast message container */}
+      <ToastContainer position="bottom-center" autoClose={2000} />
     </div>
   );
 };
@@ -49,11 +55,11 @@ const Layout = () => {
 function App() {
   return (
     <UserTypeProvider>
-    <SearchProvider>
-      <Router>
-        <Layout />
-      </Router>
-    </SearchProvider>
+      <SearchProvider>
+        <Router>
+          <Layout />
+        </Router>
+      </SearchProvider>
     </UserTypeProvider>
   );
 }

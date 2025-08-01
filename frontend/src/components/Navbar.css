@@ -1,3 +1,6 @@
+/* ==========================
+   Theme Variables
+========================== */
 :root {
   --primary-color: #009087;
   --light-bg: #ffffff;
@@ -7,6 +10,9 @@
   --max-width: 1280px;
 }
 
+/* ==========================
+   Global Base
+========================== */
 body {
   margin: 0;
   font-family: 'Segoe UI', sans-serif;
@@ -14,6 +20,9 @@ body {
   color: var(--text-color);
 }
 
+/* ==========================
+   Navbar
+========================== */
 .navbar {
   background-color: var(--light-bg);
   padding: 12px 24px;
@@ -28,14 +37,16 @@ body {
 }
 
 .navbar-row {
-  width: 100%;
+  width: 100%;             /* Fix width */
   max-width: var(--max-width);
   display: flex;
   justify-content: space-between;
   align-items: center;
   flex-wrap: nowrap;
   gap: 10px;
+  overflow-x: auto;       /* Optional: allow horizontal scroll if content overflows */
 }
+
 
 .navbar-logo {
   font-size: 22px;
@@ -51,6 +62,9 @@ body {
   opacity: 0.85;
 }
 
+/* ==========================
+   Navbar Right Section
+========================== */
 .navbar-right {
   display: flex;
   align-items: center;
@@ -59,18 +73,20 @@ body {
   flex-wrap: nowrap;
   overflow-x: auto;
   flex: 1;
+  scrollbar-width: none;
 }
 
+/* ==========================
+   Search Bar
+========================== */
 .search-container {
   display: flex;
   align-items: center;
   gap: 6px;
-  flex-shrink: 1;
   flex-grow: 1;
-  min-width: 120px;
-  max-width: 30%;
+  min-width: 320px;
+  max-width: 10%;
 }
-
 
 .navbar-search {
   width: 100%;
@@ -87,12 +103,18 @@ body {
   border-color: var(--primary-color);
 }
 
+/* ==========================
+   Cart Button
+========================== */
 .cart-button {
   position: relative;
   font-size: 20px;
   text-decoration: none;
   color: var(--text-color);
+  margin-top: 8px;
   margin-left: 4px;
+    margin-right: 60px;
+
 }
 
 .cart-count {
@@ -111,36 +133,9 @@ body {
   font-weight: bold;
 }
 
-.user-type-toggle {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-
-.user-type-button {
-  background: linear-gradient(to right, #ffffff, #f8f8f8);
-  color: #333;
-  padding: 6px 14px;
-  border: 1px solid #ddd;
-  border-radius: 24px;
-  font-size: 13px;
-  font-weight: 500;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  transition: all 0.25s ease;
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.06);
-  white-space: nowrap;
-}
-
-.user-type-button:hover {
-  background: #f5f5f5;
-  transform: translateY(-1px);
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.08);
-}
-
-
+/* ==========================
+   Dealer Banner
+========================== */
 .dealer-banner {
   position: fixed;
   top: 10px;
@@ -154,7 +149,6 @@ body {
   border-radius: 12px;
   box-shadow: 0 4px 14px rgba(0, 0, 0, 0.08);
   max-width: 90vw;
-  width: fit-content;
   display: flex;
   align-items: center;
   gap: 12px;
@@ -163,7 +157,6 @@ body {
   backdrop-filter: blur(2px);
   border: 1px solid #f0c36d;
   line-height: 1.4;
-  text-align: left;
   word-break: break-word;
 }
 
@@ -175,7 +168,6 @@ body {
   color: #8a4b0d;
   cursor: pointer;
   padding: 0;
-  margin-left: 4px;
   transition: color 0.2s ease;
 }
 
@@ -194,26 +186,41 @@ body {
   }
 }
 
-@media (max-width: 480px) {
+
+/* ==========================
+   Responsive Styles
+========================== */
+@media (max-width: 768px) {
   .navbar-right {
+    position: relative;
+    width: 100%;
     justify-content: flex-end;
+  }
+
+  .user-type-button {
+    padding: 5px 12px;
+    font-size: 12px;
+  }
+
+  .search-container {
+    width: 100%;
+    max-width: 300px;
+  }
+
+  .navbar-search {
+    width: 100%;
+  }
+}
+
+@media (max-width: 600px) {
+  
+
+  .navbar-right {
     gap: 8px;
   }
 
   .search-container {
-    min-width: 100px;
-    max-width: 140px;
-  }
-
-  .navbar-search {
-    font-size: 12px;
-    height: 24px;
-    padding: 4px 8px;
-  }
-
-  .user-type-button {
-    padding: 4px 10px;
-    font-size: 12px;
+    display: none;
   }
 
   .dealer-banner {
@@ -226,14 +233,12 @@ body {
   }
 }
 
-@media (max-width: 768px) {
-  .user-type-button {
-    padding: 5px 12px;
-    font-size: 12px;
-  }
-}
-
 @media (max-width: 480px) {
+  .navbar {
+    padding-top: 10px;
+    padding-bottom: 10px;
+  }
+
   .user-type-button {
     padding: 4px 10px;
     font-size: 11.5px;
@@ -241,6 +246,17 @@ body {
 }
 
 @media (max-width: 360px) {
+
+  .cart-button {
+  position: relative;
+  font-size: 20px;
+  text-decoration: none;
+  color: var(--text-color);
+  margin-top: 8px;
+  margin-left: 4px;
+    margin-right: 10px;
+
+}
   .user-type-button {
     padding: 3px 8px;
     font-size: 11px;

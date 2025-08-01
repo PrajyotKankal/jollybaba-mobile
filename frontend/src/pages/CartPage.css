@@ -16,6 +16,8 @@
   padding: 20px;
   background-color: var(--bg-color);
   color: var(--text-dark);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
 }
 
 .cart-page h2 {
@@ -120,16 +122,24 @@
   color: #e74c3c;
 }
 
-/* Footer Button */
+/* Footer Button + Total Price */
 .cart-footer {
   margin-top: 24px;
   display: flex;
-  justify-content: flex-end;
+  justify-content: space-between;
+  align-items: center;
   width: 100%;
   padding: 0 12px;
+  font-weight: 700;
+  font-size: 18px;
+  color: var(--primary-color);
+  gap: 20px;
 }
 
-/* Glassy Enquiry Button */
+.total-price {
+  flex-grow: 1;
+}
+
 .enquiry-button {
   background: rgba(255, 255, 255, 0.2);
   border: 1px solid rgba(255, 255, 255, 0.3);
@@ -144,6 +154,8 @@
   transition: all 0.3s ease;
   box-shadow: 0 6px 14px rgba(0, 0, 0, 0.05);
   white-space: nowrap;
+  min-width: 140px;
+  text-align: center;
 }
 
 .enquiry-button:hover {
@@ -188,12 +200,21 @@
   }
 
   .cart-footer {
-    justify-content: flex-end;
+    flex-direction: column;
+    gap: 12px;
+    justify-content: center;
     padding: 0;
+    font-size: 16px;
+  }
+
+  .total-price {
+    width: 100%;
+    text-align: center;
   }
 
   .enquiry-button {
-    padding: 10px 18px;
-    font-size: 13px;
+    width: 100%;
+    padding: 14px 0;
+    font-size: 16px;
   }
 }

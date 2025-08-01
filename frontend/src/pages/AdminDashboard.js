@@ -85,6 +85,24 @@ const AdminDashboard = () => {
     }
   };
 
+const handleToggleOutOfStock = async (id) => {
+  const confirm = window.confirm('Are you sure you want to toggle the stock status of this mobile?');
+  if (!confirm) return;
+
+  try {
+    await axios.patch(`${API}/api/mobiles/${id}/out-of-stock`, null, {
+      headers: { Authorization: `Bearer ${token}` }
+    });
+
+    // Refresh list after toggle
+    fetchMobiles();
+  } catch (error) {
+    console.error('Failed to toggle stock status:', error);
+    alert('Failed to update stock status.');
+  }
+};
+
+
   const handleUpdate = async (e) => {
     e.preventDefault();
     const formData = new FormData();
@@ -156,21 +174,21 @@ const AdminDashboard = () => {
   };
 
 
- const resetForm = () => {
-  setForm({
-    brand: '',
-    model: '',
-    ram: '',
-    storage: '',
-    retailPrice: '',
-    dealerPrice: '',
-    color: '',
-    deviceType: 'Mobile',
-    networkType: '4G'
-  });
-  setImages([]);
-  setEditId(null);
-};
+  const resetForm = () => {
+    setForm({
+      brand: '',
+      model: '',
+      ram: '',
+      storage: '',
+      retailPrice: '',
+      dealerPrice: '',
+      color: '',
+      deviceType: 'Mobile',
+      networkType: '4G'
+    });
+    setImages([]);
+    setEditId(null);
+  };
 
 
   return (
@@ -188,10 +206,38 @@ const AdminDashboard = () => {
           <form className="upload-form" onSubmit={editId ? handleUpdate : handleUpload}>
             <h2>{editId ? 'Edit Mobile' : 'Upload Mobile'}</h2>
 
-            <input name="brand" placeholder="Brand" value={form.brand} onChange={handleInputChange} required />
-            <input name="model" placeholder="Model" value={form.model} onChange={handleInputChange} required />
-            <input name="ram" placeholder="RAM" value={form.ram} onChange={handleInputChange} required />
-            <input name="storage" placeholder="Storage" value={form.storage} onChange={handleInputChange} required />
+            <input
+              name="brand"
+              placeholder="Brand"
+              value={form.brand}
+              onChange={handleInputChange}
+              required
+              className="form-input"
+            />
+            <input
+              name="model"
+              placeholder="Model"
+              value={form.model}
+              onChange={handleInputChange}
+              required
+              className="form-input"
+            />
+            <input
+              name="ram"
+              placeholder="RAM"
+              value={form.ram}
+              onChange={handleInputChange}
+              required
+              className="form-input"
+            />
+            <input
+              name="storage"
+              placeholder="Storage"
+              value={form.storage}
+              onChange={handleInputChange}
+              required
+              className="form-input"
+            />
             <input
               name="retailPrice"
               type="number"
@@ -199,6 +245,7 @@ const AdminDashboard = () => {
               value={form.retailPrice}
               onChange={handleInputChange}
               required
+              className="form-input"
             />
             <input
               name="dealerPrice"
@@ -207,8 +254,27 @@ const AdminDashboard = () => {
               value={form.dealerPrice}
               onChange={handleInputChange}
               required
+              className="form-input"
             />
-            <input name="color" placeholder="Color" value={form.color} onChange={handleInputChange} required />
+            <input
+              name="color"
+              placeholder="Color"
+              value={form.color}
+              onChange={handleInputChange}
+              required
+              className="form-input"
+            />
+
+            <textarea
+              name="description"
+              placeholder="Enter product description..."
+              value={form.description}
+              onChange={handleInputChange}
+              rows={5}
+              className="textarea-description"
+            />
+
+
 
             <select name="deviceType" value={form.deviceType} onChange={handleInputChange}>
               <option value="Mobile">Mobile</option>
@@ -303,6 +369,8 @@ const AdminDashboard = () => {
             setSearch={setSearch}
             handleEdit={handleEdit}
             handleDelete={handleDelete}
+            handleToggleOutOfStock={handleToggleOutOfStock} // 🔁 Add this
+
           />
         )}
       </div>

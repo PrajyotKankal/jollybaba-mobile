@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useContext } from 'react';
 import axios from 'axios';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useParams } from 'react-router-dom';
 import { CartContext } from '../context/CartContext';
 import { Swiper, SwiperSlide } from 'swiper/react';
 import { EffectCoverflow, Pagination } from 'swiper/modules';
@@ -17,12 +17,11 @@ const MobileDetailPage = () => {
   const { id } = useParams();
   const { addToCart } = useContext(CartContext);
   const { userType } = useContext(UserTypeContext);
+  const isDealer = userType === 'Dealer';
 
   const [mobile, setMobile] = useState(null);
-  const [suggestedMobiles, setSuggestedMobiles] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const navigate = useNavigate();
 
   useEffect(() => {
     const fetchMobiles = async () => {
@@ -30,10 +29,6 @@ const MobileDetailPage = () => {
         const res = await axios.get(`${process.env.REACT_APP_API_URL}/api/mobiles`);
         const found = res.data.find((m) => m._id === id);
         setMobile(found || null);
-
-        const suggestions = res.data.filter((m) => m._id !== id).slice(0, 4);
-        setSuggestedMobiles(suggestions);
-
         if (!found) setError('Mobile not found');
       } catch (err) {
         setError('Mobile not found');
@@ -46,27 +41,34 @@ const MobileDetailPage = () => {
   }, [id]);
 
   const handleShare = async () => {
-    const shareText = `Check out this mobile:\n${mobile.brand} ${mobile.model}\nPrice: ₹${mobile.price}\n\n${window.location.href}`;
+  if (!mobile) return;
 
-    if (navigator.share) {
-      try {
-        await navigator.share({
-          title: `${mobile.brand} ${mobile.model}`,
-          text: shareText,
-          url: window.location.href,
-        });
-      } catch (err) {
-        console.log('Sharing failed:', err);
-      }
-    } else {
-      try {
-        await navigator.clipboard.writeText(window.location.href);
-        alert('Link copied to clipboard!');
-      } catch {
-        alert('Could not copy the link');
-      }
+  const price = isDealer ? mobile.dealerPrice : mobile.retailPrice;
+  const shareText = `Check out this mobile:
+${mobile.brand} ${mobile.model}
+Price: ₹${price}
+
+${window.location.href}`;
+
+  if (navigator.share) {
+    try {
+      await navigator.share({
+        title: `${mobile.brand} ${mobile.model}`,
+        text: shareText,
+        url: window.location.href,
+      });
+    } catch (err) {
+      console.log('Sharing failed:', err);
     }
-  };
+  } else {
+    try {
+      await navigator.clipboard.writeText(window.location.href);
+      alert('Product link copied to clipboard!');
+    } catch {
+      alert('Unable to copy the link');
+    }
+  }
+};
 
   if (loading) return <div className="mobile-detail-loading">Loading...</div>;
   if (error || !mobile) return <div className="mobile-detail-error">{error || 'Mobile not found'}</div>;
@@ -80,7 +82,7 @@ const MobileDetailPage = () => {
             effect="coverflow"
             grabCursor
             centeredSlides
-            slidesPerView={'auto'}
+            slidesPerView="auto"
             speed={600}
             pagination={{ clickable: true }}
             coverflowEffect={{
@@ -114,26 +116,89 @@ const MobileDetailPage = () => {
               </SwiperSlide>
             ))}
           </Swiper>
+
+          {/* Prices under slider - desktop only */}
+          <div className="price-stock-wrapper price-under-slider">
+            {isDealer ? (
+              <div className="price-card small-dealer">
+                <p className="price fancy-price small">
+                  <span className="currency">₹</span>
+                  <span className="amount">{mobile.dealerPrice}</span>
+                  <span className="price-label">Dealer Price</span>
+                </p>
+                <p className="dealer-note">* To get dealer price, buy at least 5 mobiles</p>
+              </div>
+            ) : (
+              <div className="price-card highlight-retail">
+                <p className="price fancy-price">
+                  <span className="currency">₹</span>
+                  <span className="amount">{mobile.retailPrice}</span>
+                  <span className="price-label">Retail Price</span>
+                </p>
+              </div>
+            )}
+          </div>
         </div>
 
         <div className="mobile-detail-info">
           <h2>{mobile.brand} {mobile.model}</h2>
-          <p><strong>RAM:</strong> {mobile.ram}</p>
-          <p><strong>Storage:</strong> {mobile.storage}</p>
-          <p><strong>Color:</strong> {mobile.color}</p>
-          <p><strong>Device Type:</strong> {mobile.deviceType}</p>
-          <p><strong>Network:</strong> {mobile.networkType}</p>
 
-          <p className="price">
-            ₹{userType === 'Dealer' ? mobile.dealerPrice : mobile.retailPrice}
-          </p>
+          <table className="spec-table">
+            <tbody>
+              <tr><td>Brand</td><td>{mobile.brand}</td></tr>
+              <tr><td>Model</td><td>{mobile.model}</td></tr>
+              <tr><td>RAM</td><td>{mobile.ram}</td></tr>
+              <tr><td>Storage</td><td>{mobile.storage}</td></tr>
+              <tr><td>Color</td><td>{mobile.color}</td></tr>
+              <tr><td>Device Type</td><td>{mobile.deviceType}</td></tr>
+              <tr><td>Network</td><td>{mobile.networkType}</td></tr>
+            </tbody>
+          </table>
 
+          {/* Prices below Network - mobile only */}
+          <div className="price-stock-wrapper mobile-price-block">
+            {isDealer ? (
+              <div className="price-card small-dealer">
+                <p className="price fancy-price small">
+                  <span className="currency">₹</span>
+                  <span className="amount">{mobile.dealerPrice}</span>
+                  <span className="price-label">Dealer Price</span>
+                </p>
+                <p className="dealer-note">* To get dealer price, buy at least 5 mobiles</p>
+              </div>
+            ) : (
+              <div className="price-card highlight-retail">
+                <p className="price fancy-price">
+                  <span className="currency">₹</span>
+                  <span className="amount">{mobile.retailPrice}</span>
+                  <span className="price-label">Retail Price</span>
+                </p>
+              </div>
+            )}
+          </div>
+
+          {typeof mobile.isOutOfStock !== 'undefined' && (
+            <span className={`stock-status ${mobile.isOutOfStock ? 'out-of-stock' : 'in-stock'}`}>
+              {mobile.isOutOfStock ? 'Out of Stock' : '✔ In Stock'}
+            </span>
+          )}
+
+          {mobile.description && (
+            <div className="mobile-description-section">
+              <h3>Description</h3>
+              <p>{mobile.description}</p>
+            </div>
+          )}
 
           <div className="btn-group">
             <button className="share-button" onClick={handleShare}>🔗 Share</button>
+
             <button
               className="add-to-cart"
+              disabled={mobile.isOutOfStock}
+              style={mobile.isOutOfStock ? { opacity: 0.6, cursor: 'not-allowed' } : {}}
               onClick={() => {
+                if (mobile.isOutOfStock) return;
                 addToCart(mobile);
                 toast.success(`${mobile.brand} ${mobile.model} added to cart!`, {
                   position: 'top-center',
@@ -148,7 +213,6 @@ const MobileDetailPage = () => {
                     textAlign: 'center',
                   },
                 });
-
               }}
             >
               🛒 Add to Cart
@@ -156,40 +220,20 @@ const MobileDetailPage = () => {
           </div>
 
           <a
-            href={`https://wa.me/918055150475?text=${encodeURIComponent(
-              `Hello, I'm interested in buying:\n\nModel: ${mobile.brand} ${mobile.model}\nRAM: ${mobile.ram}\nStorage: ${mobile.storage}\nColor: ${mobile.color}\nPrice: ₹${userType === 'Dealer' ? mobile.dealerPrice : mobile.retailPrice}\nModel ID: ${mobile.mobileId}\n\nView Product: ${window.location.href}`
+            href={`https://wa.me/917891011841?text=${encodeURIComponent(
+              `Hello, I'm interested in buying:\n\nModel: ${mobile.brand} ${mobile.model}\nRAM: ${mobile.ram}\nStorage: ${mobile.storage}\nColor: ${mobile.color}\nPrice: ₹${isDealer ? mobile.dealerPrice : mobile.retailPrice}\nModel ID: ${mobile.mobileId}\n\nView Product: ${window.location.href}`
             )}`}
             className="buy-now-button"
             target="_blank"
             rel="noopener noreferrer"
+            style={mobile.isOutOfStock ? { opacity: 0.6, pointerEvents: 'none' } : {}}
           >
             Buy Now
           </a>
         </div>
       </div>
 
-      {suggestedMobiles.length > 0 && (
-        <div className="suggested-section">
-          <h3>You Might Also Like</h3>
-          <div className="suggested-grid">
-            {suggestedMobiles.map((m) => (
-              <div key={m._id} className="suggested-card" onClick={() => navigate(`/mobile/${m._id}`)}>
-                <img src={m.imageUrls?.[0]} alt={m.model} />
-                <div className="suggested-info">
-                  <p className="brand">{m.brand}</p>
-                  <p className="model">{m.model}</p>
-                  <p className="price">
-                    ₹{userType === 'Dealer' ? m.dealerPrice : m.retailPrice}
-                  </p>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      )}
-
       <ToastContainer newestOnTop closeButton={false} />
-
     </div>
   );
 };
