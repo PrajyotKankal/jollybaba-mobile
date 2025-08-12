@@ -41,21 +41,26 @@ const isFilterActive =
   const [currentPage, setCurrentPage] = useState(1);
   const mobilesPerPage = 20;
 
-  useEffect(() => {
-    const fetchMobiles = async () => {
-      try {
-        setLoading(true);
-        const res = await axios.get(`${process.env.REACT_APP_API_URL}/api/mobiles`);
-        setMobiles(res.data);
-        setFilteredMobiles(res.data);
-      } catch (err) {
-        console.error('Failed to load catalog:', err);
-      } finally {
-        setLoading(false);
-      }
-    };
-    fetchMobiles();
-  }, []);
+useEffect(() => {
+  const fetchMobiles = async () => {
+    try {
+      setLoading(true);
+      const res = await axios.get(
+        `${process.env.REACT_APP_API_URL}/api/mobiles`,
+        { withCredentials: true } // set to false if you DON'T use cookies
+      );
+      setMobiles(res.data);
+      setFilteredMobiles(res.data);
+    } catch (err) {
+      console.error('Failed to load catalog:', err);
+    } finally {
+      setLoading(false);
+    }
+  };
+  fetchMobiles();
+}, []);
+
+  
   useEffect(() => {
     const handleOutsideClick = (e) => {
       const isMobile = window.innerWidth <= 768; // adjust breakpoint if needed
