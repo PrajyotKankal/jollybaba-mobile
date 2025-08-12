@@ -42,9 +42,9 @@ const corsOptionsDelegate = (req, callback) => {
 
 app.use(cors(corsOptionsDelegate));
 
-// ✅ Express 5-safe preflight handlers (no bare '*')
-app.options('/api/(.*)', cors(corsOptionsDelegate));
-app.options('/auth/(.*)', cors(corsOptionsDelegate));
+// ✅ Express 5-safe preflight handlers (use real RegExp, not string with groups)
+app.options(/^\/api\/.*$/, cors(corsOptionsDelegate));
+app.options(/^\/auth\/.*$/, cors(corsOptionsDelegate));
 
 // --- Parsers ---
 app.use(express.json({ limit: '1mb' }));
