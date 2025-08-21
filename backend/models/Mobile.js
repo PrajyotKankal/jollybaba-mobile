@@ -1,3 +1,4 @@
+// models/Mobile.js
 const mongoose = require('mongoose');
 
 const mobileSchema = new mongoose.Schema({
@@ -28,10 +29,11 @@ const mobileSchema = new mongoose.Schema({
 
   description: { type: String },
 
-  isOutOfStock: {
-    type: Boolean,
-    default: false,
-  },
+  isOutOfStock: { type: Boolean, default: false },
+
+  // NEW: short link id for /m/:shortId
+  shortId: { type: String, index: true, unique: true, sparse: true },
+
 
   createdAt: { type: Date, default: Date.now },
 });

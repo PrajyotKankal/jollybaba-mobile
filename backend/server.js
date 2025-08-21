@@ -11,14 +11,32 @@ app.set('trust proxy', 1);
 
 const PORT = process.env.PORT || 5000;
 
-// --- CORS ---
-const allowlist = [
+/* ---------------------------
+   CORS (allow site + previews)
+---------------------------- */
+const staticAllow = [
   'https://jollybaba.in',
   'https://www.jollybaba.in',
   'https://jollybaba.netlify.app',
   'http://localhost:3000',
   'http://localhost:5173',
 ];
+
+// include env-driven domains for future-proofing
+const envOrigins = []
+  .concat(process.env.SHORT_BASE_URL || [])
+  .concat(process.env.CANONICAL_BASE_URL || [])
+  .filter(Boolean)
+  .map((u) => {
+    try {
+      return new URL(u).origin;
+    } catch {
+      return null;
+    }
+  })
+  .filter(Boolean);
+
+const allowlist = Array.from(new Set([...staticAllow, ...envOrigins]));
 
 const corsOptionsDelegate = (req, callback) => {
   const origin = req.header('Origin');
@@ -46,21 +64,36 @@ app.use(cors(corsOptionsDelegate));
 app.options(/^\/api\/.*$/, cors(corsOptionsDelegate));
 app.options(/^\/auth\/.*$/, cors(corsOptionsDelegate));
 
-// --- Parsers ---
+/* ---------------------------
+   Parsers
+---------------------------- */
 app.use(express.json({ limit: '1mb' }));
 app.use(express.urlencoded({ extended: true }));
 
-// --- Routes ---
+/* ---------------------------
+   Routes
+---------------------------- */
 app.use('/api/auth', require('./routes/authRoutes'));
 app.use('/api/mobiles', require('./routes/mobileRoutes'));
+
+// Link service:
+// - /api/mobiles/:id/link → returns short link JSON
+// - /m/:shortId → redirects to canonical product URL
+app.use('/api', require('./routes/linkApiRoutes'));
+app.use('/', require('./routes/publicRedirectRoutes'));
+
 app.get('/api/health', (req, res) => res.json({ ok: true }));
 
-// --- 404 fallback
+/* ---------------------------
+   404 fallback
+---------------------------- */
 app.use((req, res) => res.status(404).json({ error: 'Not found' }));
 
-// --- MongoDB ---
+/* ---------------------------
+   MongoDB
+---------------------------- */
 mongoose
-  .connect(process.env.MONGO_URI, { dbName: 'jollybaba_db' })
+  .connect(process.env.MONGO_URI, { dbName: process.env.MONGO_DB || 'jollybaba_db' })
   .then(() => {
     console.log('✅ MongoDB connected');
     app.listen(PORT, () => console.log(`🚀 Server running on port ${PORT}`));
