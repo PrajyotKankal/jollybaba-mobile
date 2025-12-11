@@ -47,13 +47,13 @@ const corsOptionsDelegate = (req, callback) => {
     null,
     isAllowed
       ? {
-          origin: true,
-          credentials: true,
-          methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
-          allowedHeaders: ['Content-Type', 'Authorization', 'Accept', 'X-Requested-With'],
-          exposedHeaders: ['Content-Range', 'X-Total-Count'],
-          optionsSuccessStatus: 204,
-        }
+        origin: true,
+        credentials: true,
+        methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
+        allowedHeaders: ['Content-Type', 'Authorization', 'Accept', 'X-Requested-With'],
+        exposedHeaders: ['Content-Range', 'X-Total-Count'],
+        optionsSuccessStatus: 204,
+      }
       : { origin: false }
   );
 };
@@ -92,6 +92,9 @@ app.use((req, res) => res.status(404).json({ error: 'Not found' }));
 /* ---------------------------
    MongoDB
 ---------------------------- */
+console.log('DEBUG: MONGO_URI is', process.env.MONGO_URI ? 'defined' : 'undefined');
+console.log('DEBUG: MONGO_URI starts with', process.env.MONGO_URI ? process.env.MONGO_URI.substring(0, 5) : 'N/A');
+
 mongoose
   .connect(process.env.MONGO_URI, { dbName: process.env.MONGO_DB || 'jollybaba_db' })
   .then(() => {
