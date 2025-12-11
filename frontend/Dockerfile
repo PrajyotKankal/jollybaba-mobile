@@ -1,6 +1,11 @@
 # Build stage
 FROM node:22-alpine AS builder
 WORKDIR /app
+
+# Build-time argument for React app
+ARG REACT_APP_API_URL
+ENV REACT_APP_API_URL=$REACT_APP_API_URL
+
 COPY package*.json ./
 RUN npm ci --legacy-peer-deps
 COPY . .
