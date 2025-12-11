@@ -18,6 +18,7 @@ const staticAllow = [
   'https://jollybaba.in',
   'https://www.jollybaba.in',
   'https://jollybaba.netlify.app',
+  'https://precious-adaptation-production-c86f.up.railway.app',
   'http://localhost:3000',
   'http://localhost:5173',
 ];
