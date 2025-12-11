@@ -8,6 +8,7 @@
   --shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
   --radius: 6px;
   --max-width: 1280px;
+  --accent-hover: #007c76;
 }
 
 /* ==========================
@@ -37,16 +38,15 @@ body {
 }
 
 .navbar-row {
-  width: 100%;             /* Fix width */
+  width: 100%;
   max-width: var(--max-width);
   display: flex;
   justify-content: space-between;
   align-items: center;
   flex-wrap: nowrap;
   gap: 10px;
-  overflow-x: auto;       /* Optional: allow horizontal scroll if content overflows */
+  overflow-x: auto;
 }
-
 
 .navbar-logo {
   font-size: 22px;
@@ -68,8 +68,8 @@ body {
 .navbar-right {
   display: flex;
   align-items: center;
-  justify-content: flex-end;
-  gap: 10px;
+  justify-content: flex-end;      /* keep whole group on right */
+  gap: 20px;
   flex-wrap: nowrap;
   overflow-x: auto;
   flex: 1;
@@ -83,16 +83,16 @@ body {
   display: flex;
   align-items: center;
   gap: 6px;
-  flex-grow: 1;
-  min-width: 320px;
-  max-width: 10%;
+  flex: 1;                        /* allow expansion */
+  min-width: 220px;               /* don’t shrink too much */
+  max-width: 420px;               /* readable width on desktop */
 }
 
 .navbar-search {
   width: 100%;
-  font-size: 13px;
-  height: 28px;
-  padding: 5px 10px;
+  font-size: 14px;
+  height: 20px;
+  padding: 6px 12px;
   border-radius: var(--radius);
   border: 1px solid #ccc;
   background-color: #fff;
@@ -103,6 +103,9 @@ body {
   border-color: var(--primary-color);
 }
 
+
+
+
 /* ==========================
    Cart Button
 ========================== */
@@ -111,10 +114,8 @@ body {
   font-size: 20px;
   text-decoration: none;
   color: var(--text-color);
-  margin-top: 8px;
-  margin-left: 4px;
-    margin-right: 60px;
-
+  margin-top: 9px;  
+  gap: 5px;              /* better vertical alignment */
 }
 
 .cart-count {
@@ -176,16 +177,54 @@ body {
 }
 
 @keyframes fadeSlideDown {
-  from {
-    transform: translate(-50%, -100%);
-    opacity: 0;
-  }
-  to {
-    transform: translate(-50%, 0);
-    opacity: 1;
-  }
+  from { transform: translate(-50%, -100%); opacity: 0; }
+  to   { transform: translate(-50%, 0);      opacity: 1; }
 }
 
+/* ==========================
+   APK Download Button
+========================== */
+.apk-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  height: 38px;
+  padding: 0 14px;
+  border-radius: 999px;
+  border: 1px solid rgba(0, 0, 0, 0.06);
+  background: linear-gradient(180deg, #00a79a 0%, var(--primary-color) 100%);
+  color: #ffffff;
+  font-size: 14px;
+  font-weight: 600;
+  text-decoration: none;
+  box-shadow: 0 6px 16px rgba(0, 144, 135, 0.25);
+  transition: transform 0.15s ease, box-shadow 0.2s ease, background 0.2s ease;
+  will-change: transform, box-shadow;
+
+  order: 99;                       /* last within navbar-right */
+}
+
+.apk-btn:hover {
+  transform: translateY(-1px);
+  background: linear-gradient(180deg, #00b7a9 0%, var(--accent-hover) 100%);
+  box-shadow: 0 10px 24px rgba(0, 144, 135, 0.35);
+}
+
+.apk-btn:active {
+  transform: translateY(0);
+  box-shadow: 0 4px 12px rgba(0, 144, 135, 0.25);
+}
+
+.apk-icon {
+  display: inline-block;
+  line-height: 0;
+  color: #ffffff;
+}
+
+.apk-text {
+  display: inline-block;
+  letter-spacing: 0.2px;
+}
 
 /* ==========================
    Responsive Styles
@@ -195,6 +234,7 @@ body {
     position: relative;
     width: 100%;
     justify-content: flex-end;
+    gap: 15px;
   }
 
   .user-type-button {
@@ -205,61 +245,263 @@ body {
   .search-container {
     width: 100%;
     max-width: 300px;
+    min-width: 0;
+    flex: 1;
   }
 
   .navbar-search {
     width: 100%;
   }
+
+  .apk-btn {
+    height: 36px;
+    padding: 0 12px;
+    font-size: 13px;
+    gap: 6px;
+  }
+}
+@media (min-width: 768px) {
+  body.home-route .search-container {
+    display: none !important;
+  }
 }
 
+/* keep search visible on non-Home pages at ≥768px (safeguard) */
+@media (min-width: 768px) {
+  body:not(.home-route) .search-container {
+    display: flex !important;
+  }
+}
+
+
 @media (max-width: 600px) {
-  
-
-  .navbar-right {
-    gap: 8px;
-  }
-
-  .search-container {
-    display: none;
-  }
-
-  .dealer-banner {
-    font-size: 12px;
-    padding: 8px 12px;
-  }
-
-  .close-banner {
-    font-size: 14px;
-  }
+  .navbar-right { gap: 8px; }
+  .search-container { display: none; }
+  .dealer-banner { font-size: 12px; padding: 8px 12px; }
+  .close-banner { font-size: 14px; }
 }
 
 @media (max-width: 480px) {
-  .navbar {
-    padding-top: 10px;
-    padding-bottom: 10px;
-  }
+  .navbar { padding-top: 10px; padding-bottom: 10px; }
+  .user-type-button { padding: 4px 10px; font-size: 11.5px; }
+}
 
-  .user-type-button {
-    padding: 4px 10px;
-    font-size: 11.5px;
-  }
+@media (max-width: 420px) {
+  .apk-text { display: none; }   /* icon only */
+  .apk-btn  { padding: 0 10px; border-radius: 12px; }
 }
 
 @media (max-width: 360px) {
-
-  .cart-button {
-  position: relative;
-  font-size: 20px;
-  text-decoration: none;
-  color: var(--text-color);
-  margin-top: 8px;
-  margin-left: 4px;
-    margin-right: 10px;
-
-}
+  .cart-button { margin-right: 10px; }
   .user-type-button {
     padding: 3px 8px;
     font-size: 11px;
     border-radius: 20px;
   }
+}
+
+/* Hide search bar on tablets only (768px–1024px) */
+
+/* Ensure it shows again on desktop */
+@media (min-width: 1025px) {
+  .search-container { display: flex; }
+}
+
+/* Responsive: make the APK button compact on smaller screens */
+@media (max-width: 768px) {
+  .apk-btn {
+    height: 34px;
+    padding: 0 10px;
+    font-size: 12.5px;   /* slightly smaller text */
+    gap: 5px;
+  }
+  .apk-text {
+    display: inline-block !important; /* ✅ force text to stay visible */
+    font-size: 12px;                  /* micro size for mobile */
+    font-weight: 500;
+  }
+}
+
+/* Remove this rule that hides text on small widths */
+@media (max-width: 420px) {
+  .apk-text {
+    display: inline-block; /* keep visible */
+    font-size: 11.5px;     /* micro sizing */
+  }
+  .apk-btn {
+    padding: 0 8px;
+    border-radius: 10px;
+  }
+}
+
+/* ==========================
+   APK Download Popup
+========================== */
+.apk-popup-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(34, 34, 34, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 2000;
+}
+
+.apk-popup {
+  background: #fff;
+  border-radius: 14px;
+  padding: 24px 28px;
+  max-width: 380px;
+  width: 90%;
+  text-align: center;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
+  animation: popupFade 0.3s ease;
+  position: relative;
+}
+
+.apk-popup h3 {
+  margin: 0 0 10px;
+  font-size: 20px;
+  color: var(--primary-color);
+}
+
+.apk-popup p {
+  font-size: 14px;
+  color: #444;
+  margin: 0 0 20px;
+}
+
+.apk-popup-btn {
+  display: inline-block;
+  background: var(--primary-color);
+  color: #fff;
+  padding: 10px 20px;
+  border-radius: 30px;
+  font-weight: 600;
+  text-decoration: none;
+  transition: background 0.2s ease;
+}
+
+.apk-popup-btn:hover {
+  background: var(--accent-hover);
+}
+
+.apk-popup-close {
+  position: absolute;
+  top: 8px;
+  right: 12px;
+  background: transparent;
+  border: none;
+  font-size: 18px;
+  cursor: pointer;
+  color: #888;
+}
+
+.apk-popup-close:hover {
+  color: #333;
+}
+
+@keyframes popupFade {
+  from {
+    transform: scale(0.9);
+    opacity: 0;
+  }
+  to {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+/* Make the SVG look sharp and inherit button color */
+.apk-icon{
+  width: 18px;
+  height: 18px;
+  stroke: currentColor;
+  fill: none;
+  stroke-width: 1.8;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  flex-shrink: 0;
+  display: inline-block;
+}
+
+
+/* Optional: slightly larger on very small screens for legibility */
+@media (max-width: 380px){
+  .apk-icon{ width: 20px; height: 20px; }
+}
+/* Make the "Get App" button extra-compact at very small screens (≤320px) */
+@media (max-width: 320px) {
+
+  .apk-btn {
+    height: 30px;
+    padding: 0 8px;
+    border-radius: 10px;
+    gap: 4px;
+    min-width: auto;
+  }
+  .apk-icon {
+    width: 16px;
+    height: 16px;
+  }
+  .apk-text {
+    display: none !important;  /* icon-only to save space */
+  }
+
+  /* optional: tighten spacing around it */
+  .navbar-right { gap: 4px; }
+  .cart-button { margin-top: 0; font-size: 18px; }
+}
+@media (max-width: 320px) {
+  .cart-button {
+    margin-top: 14px;   /* increase spacing */
+    font-size: 18px;
+  }
+}
+
+
+/* src/components/Navbar.css */
+
+/* Logo link (no hover effects) */
+.navbar-logo{
+  display:inline-flex;
+  align-items:center;
+  text-decoration:none;
+  line-height:0;
+  padding:0;
+  /* keep it clickable but no visual hover changes */
+  cursor:pointer;
+}
+
+/* Image-only logo */
+.navbar-logo-img{
+  height:40px;     /* adjust to match your navbar */
+  width:auto;
+  display:block;
+  object-fit:contain;
+
+  /* disable transitions so hover styles elsewhere can't animate it */
+  transition:none !important;
+}
+
+/* Explicitly neutralize any existing hover rules from older CSS */
+.navbar-logo:hover,
+.navbar-logo-img:hover{
+  transform:none !important;
+  filter:none !important;
+  opacity:1 !important;
+}
+
+/* Keep keyboard accessibility */
+.navbar-logo:focus-visible{
+  outline:2px solid #16a085; /* optional, match your theme */
+  border-radius:6px;
+}
+
+/* Optional: bump size on wider screens (still no hover) */
+@media (min-width:768px){
+  .navbar-logo-img{ height:44px; }
 }

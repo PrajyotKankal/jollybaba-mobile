@@ -1,46 +1,55 @@
+// src/pages/CartPage.jsx
 import React, { useContext } from 'react';
 import { CartContext } from '../context/CartContext';
 import { UserTypeContext } from '../context/UserTypeContext';
 import { Link } from 'react-router-dom';
 import './CartPage.css';
 
+// Build an absolute URL from a path using whatever domain the site is on
+const makeAbsolute = (path) =>
+  typeof window !== 'undefined'
+    ? new URL(path, window.location.origin).href
+    : path;
+
 const CartPage = () => {
   const { cart, removeFromCart } = useContext(CartContext);
   const { userType } = useContext(UserTypeContext);
 
+  const getItemPrice = (item) =>
+    userType === 'Dealer' ? Number(item.dealerPrice) : Number(item.retailPrice);
+
   // Calculate total price based on user type
   const totalPrice = cart.reduce((sum, item) => {
-    const price = userType === 'Dealer' ? item.dealerPrice : item.retailPrice;
-    return sum + (Number(price) || 0);
+    const price = getItemPrice(item);
+    return sum + (Number.isFinite(price) ? price : 0);
   }, 0);
 
-  const handleEnquiry = () => {
-  if (cart.length === 0) {
-    alert('Your cart is empty.');
-    return;
-  }
+  const handleEnquiry = async () => {
+    if (cart.length === 0) {
+      alert('Your cart is empty.');
+      return;
+    }
 
-  const baseUrl = window.location.origin;
-  const totalPrice = cart.reduce((sum, item) => {
-    const price = userType === 'Dealer' ? Number(item.dealerPrice) : Number(item.retailPrice);
-    return sum + (isNaN(price) ? 0 : price);
-  }, 0);
+    // Always use canonical long URL for each product
+    const links = cart.map((item) => makeAbsolute(`/mobile/${item._id}`));
 
-  const message = `Hello, I’m interested in the following mobiles:\n\n${cart
-    .map(
-      (item, index) =>
-        `${index + 1}. ${item.brand} ${item.model} (ID: ${item.mobileId}) (${item.ram}/${item.storage}) – ₹${
-          userType === 'Dealer' ? item.dealerPrice : item.retailPrice
-        }\n${baseUrl}/mobile/${item._id}`
-    )
-    .join('\n\n')}
+    const lines = [];
+    lines.push(`Hello, I’m interested in the following mobiles:\n`);
+    cart.forEach((item, idx) => {
+      const price = getItemPrice(item);
+      const priceStr = Number.isFinite(price) ? price.toLocaleString('en-IN') : '-';
+      lines.push(
+        `${idx + 1}. ${item.brand} ${item.model} (ID: ${item.mobileId || '-'}) (${item.ram}/${item.storage}) – ₹${priceStr}\n` +
+        `🔗 View Details: ${links[idx]}`
+      );
+    });
+    lines.push(`\nTotal Price: ₹${totalPrice.toLocaleString('en-IN')}`);
 
-Total Price: ₹${totalPrice.toLocaleString('en-IN')}`;
-
-  const phoneNumber = '917891011841';
-  const url = `https://wa.me/${phoneNumber}?text=${encodeURIComponent(message)}`;
-  window.open(url, '_blank');
-};
+    const message = lines.join('\n\n');
+    const phoneNumber = '917891011841'; // your business number (no '+')
+    const url = `https://wa.me/${phoneNumber}?text=${encodeURIComponent(message)}`;
+    window.open(url, '_blank', 'noopener,noreferrer');
+  };
 
   return (
     <div className="cart-page">
@@ -71,7 +80,7 @@ Total Price: ₹${totalPrice.toLocaleString('en-IN')}`;
                       {item.ram} / {item.storage}
                     </p>
                     <p>
-                      ₹{userType === 'Dealer' ? item.dealerPrice : item.retailPrice}
+                      ₹{getItemPrice(item).toLocaleString('en-IN')}
                     </p>
                   </div>
                 </Link>

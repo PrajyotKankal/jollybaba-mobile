@@ -100,6 +100,27 @@ body.sidebar-open {
 .stock-badge-corner.out {
   background-color: #d32f2f; /* red for out of stock */
 }
+/* HomePage.css (add these few lines anywhere) */
+.catalog-section .catalog-chatbot-wrap{
+  display:flex;
+  justify-content:center;
+  margin-bottom:16px; /* space between chatbot and filters */
+}
+
+/* Optional: if you want a touch more spacing on mobile */
+@media (max-width: 640px){
+  .catalog-section .catalog-chatbot-wrap{
+    margin-bottom:12px;
+  }
+}
+
+.catalog-section .catalog-chatbot-wrap{
+  display:flex;
+  justify-content:center;
+  margin-bottom:16px;
+}
+
+
 
 .stock-badge-corner.in {
   background-color: #388e3c; /* green for in stock */
@@ -813,4 +834,67 @@ body.sidebar-open {
 
 
   
+}
+/* HomePage.css — hide search bar + filter button at 768px and above */
+@media (min-width: 768px) {
+  .filter-topbar .mobile-searchbar,
+  .filter-topbar .filter-toggle-btn {
+    display: none !important;
+  }
+}
+
+/* (optional) ensure they show again below 768px */
+@media (max-width: 767.98px) {
+  .filter-topbar .mobile-searchbar { display: block !important; }
+  .filter-topbar .filter-toggle-btn { display: inline-flex !important; }
+}
+
+
+/* ==========================
+   Top Centered Brand Title
+========================== */
+.home-title-wrap {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin: 24px 0 16px;              /* balanced breathing space */
+  text-align: center;
+}
+
+.home-title {
+  margin: 0;
+  font-family: 'Poppins', 'Inter', 'Segoe UI', sans-serif; /* premium clean font */
+  font-size: clamp(20px, 4.5vw, 20px); /* fluid scaling: mobile → desktop */
+  font-weight: 700;
+  letter-spacing: 0.7px;
+  line-height: 1.2;
+  color: #1F2D3D;
+  user-select: none;
+  text-shadow: 0 2px 4px rgba(0,0,0,0.06); /* subtle depth */
+}
+
+/* --- Word styling --- */
+.home-title-primary {
+  font-weight: 800;                /* "Jolly" stronger emphasis */
+  color: #009087;                  /* premium teal */
+}
+
+.home-title-accent {
+  
+  font-weight: 600;                /* "Baba" softer for contrast */
+  background: #009087;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;           /* Firefox fallback */
+  display: inline-block;
+}
+
+/* --- Responsive tweaks --- */
+@media (max-width: 480px) {
+  .home-title-wrap { margin: 16px 0 10px; }
+  .home-title { 
+    font-size: clamp(22px, 6vw, 28px);
+    letter-spacing: 0.4px;
+  }
 }

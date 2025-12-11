@@ -7,18 +7,19 @@ import { CartContext } from '../context/CartContext';
 import { toast } from 'react-toastify';
 
 
+
 import './HomePage.css';
 
 const HomePage = () => {
   const [mobiles, setMobiles] = useState([]);
-    const [priceCap, setPriceCap] = useState(-1);
+  const [priceCap, setPriceCap] = useState(-1);
 
   const [filters, setFilters] = useState({ brand: [], ram: [], storage: [] });
   const [filteredMobiles, setFilteredMobiles] = useState([]);
   const [dropdownOpen, setDropdownOpen] = useState({ brand: true, ram: false, storage: false });
   const [mobileFiltersVisible, setMobileFiltersVisible] = useState(false);
-const isFilterActive =
-  Object.values(filters).some((arr) => arr.length > 0) || priceCap !== -1;  
+  const isFilterActive =
+    Object.values(filters).some((arr) => arr.length > 0) || priceCap !== -1;
 
   const [activeCategory, setActiveCategory] = useState(null);
 
@@ -41,26 +42,26 @@ const isFilterActive =
   const [currentPage, setCurrentPage] = useState(1);
   const mobilesPerPage = 20;
 
-useEffect(() => {
-  const fetchMobiles = async () => {
-    try {
-      setLoading(true);
-      const res = await axios.get(
-        `${process.env.REACT_APP_API_URL}/api/mobiles`,
-        { withCredentials: true } // set to false if you DON'T use cookies
-      );
-      setMobiles(res.data);
-      setFilteredMobiles(res.data);
-    } catch (err) {
-      console.error('Failed to load catalog:', err);
-    } finally {
-      setLoading(false);
-    }
-  };
-  fetchMobiles();
-}, []);
+  useEffect(() => {
+    const fetchMobiles = async () => {
+      try {
+        setLoading(true);
+        const res = await axios.get(
+          `${process.env.REACT_APP_API_URL}/api/mobiles`,
+          { withCredentials: true } // set to false if you DON'T use cookies
+        );
+        setMobiles(res.data);
+        setFilteredMobiles(res.data);
+      } catch (err) {
+        console.error('Failed to load catalog:', err);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchMobiles();
+  }, []);
 
-  
+
   useEffect(() => {
     const handleOutsideClick = (e) => {
       const isMobile = window.innerWidth <= 768; // adjust breakpoint if needed
@@ -208,7 +209,7 @@ useEffect(() => {
         }}
         disabled={currentPage === 1}
       >
-        ⬅ Back
+        Back
       </button>
 
       <span className="page-status">Page {currentPage} of {totalPages}</span>
@@ -221,7 +222,7 @@ useEffect(() => {
         }}
         disabled={currentPage === totalPages}
       >
-        Next ➡
+        Next
       </button>
     </div>
   );
@@ -233,6 +234,8 @@ useEffect(() => {
 
   return (
     <div className="homepage-grid">
+      
+
       {loading && (
         <div className="spinner-overlay">
           <div className="elegant-spinner"></div>
@@ -337,6 +340,7 @@ useEffect(() => {
 
 
       <main className="catalog-section">
+
         <div className="filter-topbar">
           <input
             type="text"
@@ -353,7 +357,7 @@ useEffect(() => {
             ☰
           </button>
 
-          
+
 
         </div>
 
@@ -533,6 +537,7 @@ useEffect(() => {
 
         {renderPagination()}
       </main>
+
     </div>
   );
 };
