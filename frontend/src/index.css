@@ -1,0 +1,265 @@
+/* =========================================
+   PREMIUM DESIGN SYSTEM - JOLLYBABA
+   ========================================= */
+
+/* 1. Typography Imports */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
+
+/* 2. Global Variables - Light Theme (Default) */
+:root {
+    /* --- Palette: Modern Minimalist (Emerald & Midnight) --- */
+    --color-primary: #009087;
+    --color-primary-dark: #007c76;
+    --color-primary-light: #e0f2f1;
+    --color-primary-rgb: 0, 144, 135;
+
+    --color-bg-main: #f8f9fa;
+    --color-bg-surface: #ffffff;
+    --color-bg-elevated: #ffffff;
+    --color-bg-hover: #f1f5f9;
+
+    --color-text-main: #111827;
+    --color-text-secondary: #6b7280;
+    --color-text-light: #9ca3af;
+    --color-text-inverse: #ffffff;
+
+    --color-accent: #f59e0b;
+    --color-danger: #ef4444;
+    --color-success: #10b981;
+    --color-warning: #f59e0b;
+
+    --color-border: rgba(0, 0, 0, 0.08);
+    --color-border-light: rgba(0, 0, 0, 0.04);
+
+    /* --- Typography --- */
+    --font-sans: 'Plus Jakarta Sans', 'Inter', sans-serif;
+    --font-body: 'Inter', sans-serif;
+    --font-primary: 'Inter', sans-serif;
+
+    /* --- Shadows (Layered & Soft) --- */
+    --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+    --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+    --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+    --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+    --shadow-float: 0 20px 40px -10px rgba(0, 144, 135, 0.15);
+
+    /* --- Glassmorphism --- */
+    --glass-bg: rgba(255, 255, 255, 0.85);
+    --glass-border: 1px solid rgba(255, 255, 255, 0.5);
+    --glass-blur: blur(12px);
+    --glass-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.07);
+
+    /* --- Shapes --- */
+    --radius-sm: 8px;
+    --radius-md: 12px;
+    --radius-lg: 16px;
+    --radius-xl: 24px;
+    --radius-full: 9999px;
+
+    /* --- Transitions --- */
+    --transition-fast: 0.15s ease;
+    --transition-normal: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    --transition-bounce: 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+
+    /* --- Input & Form --- */
+    --input-bg: #f9fafb;
+    --input-border: rgba(0, 0, 0, 0.1);
+    --input-focus-bg: #ffffff;
+
+    /* --- Table --- */
+    --table-header-bg: linear-gradient(135deg, #009087 0%, #00b8ad 100%);
+    --table-row-hover: rgba(0, 144, 135, 0.04);
+    --table-border: rgba(0, 0, 0, 0.04);
+
+    /* --- Card --- */
+    --card-bg: #ffffff;
+    --card-border: rgba(0, 0, 0, 0.04);
+    --card-shadow: 0 4px 20px rgba(0, 0, 0, 0.06);
+
+    /* --- Navbar --- */
+    --navbar-bg: rgba(255, 255, 255, 0.95);
+    --navbar-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+}
+
+/* 3. Dark Theme Variables */
+[data-theme="dark"] {
+    --color-primary: #00b8ad;
+    --color-primary-dark: #009087;
+    --color-primary-light: #134e4a;
+    --color-primary-rgb: 0, 184, 173;
+
+    --color-bg-main: #0f172a;
+    --color-bg-surface: #1e293b;
+    --color-bg-elevated: #334155;
+    --color-bg-hover: #334155;
+
+    --color-text-main: #f1f5f9;
+    --color-text-secondary: #94a3b8;
+    --color-text-light: #64748b;
+    --color-text-inverse: #0f172a;
+
+    --color-accent: #fbbf24;
+    --color-danger: #f87171;
+    --color-success: #34d399;
+    --color-warning: #fbbf24;
+
+    --color-border: rgba(255, 255, 255, 0.1);
+    --color-border-light: rgba(255, 255, 255, 0.05);
+
+    /* --- Shadows for Dark Mode --- */
+    --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.3);
+    --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.4), 0 2px 4px -1px rgba(0, 0, 0, 0.3);
+    --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.4), 0 4px 6px -2px rgba(0, 0, 0, 0.2);
+    --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.4), 0 10px 10px -5px rgba(0, 0, 0, 0.2);
+    --shadow-float: 0 20px 40px -10px rgba(0, 184, 173, 0.2);
+
+    /* --- Glassmorphism Dark --- */
+    --glass-bg: rgba(30, 41, 59, 0.85);
+    --glass-border: 1px solid rgba(255, 255, 255, 0.1);
+    --glass-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3);
+
+    /* --- Input & Form Dark --- */
+    --input-bg: #1e293b;
+    --input-border: rgba(255, 255, 255, 0.1);
+    --input-focus-bg: #334155;
+
+    /* --- Table Dark --- */
+    --table-header-bg: linear-gradient(135deg, #009087 0%, #00b8ad 100%);
+    --table-row-hover: rgba(0, 184, 173, 0.1);
+    --table-border: rgba(255, 255, 255, 0.05);
+
+    /* --- Card Dark --- */
+    --card-bg: #1e293b;
+    --card-border: rgba(255, 255, 255, 0.05);
+    --card-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+
+    /* --- Navbar Dark --- */
+    --navbar-bg: rgba(15, 23, 42, 0.95);
+    --navbar-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+
+    /* Scrollbar Dark */
+    --scrollbar-track: #1e293b;
+    --scrollbar-thumb: #475569;
+    --scrollbar-thumb-hover: #64748b;
+}
+
+/* 4. Base Reset & Typography */
+* {
+    transition: background-color 0.3s ease, border-color 0.3s ease, color 0.3s ease;
+}
+
+body {
+    margin: 0;
+    font-family: var(--font-body);
+    background-color: var(--color-bg-main);
+    color: var(--color-text-main);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    line-height: 1.6;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+    font-family: var(--font-sans);
+    font-weight: 700;
+    letter-spacing: -0.025em;
+    margin-top: 0;
+    color: var(--color-text-main);
+}
+
+button,
+input,
+select,
+textarea {
+    font-family: inherit;
+}
+
+/* 5. Utility Classes (Premium Helpers) */
+.glass-panel {
+    background: var(--glass-bg);
+    backdrop-filter: var(--glass-blur);
+    -webkit-backdrop-filter: var(--glass-blur);
+    border: var(--glass-border);
+    box-shadow: var(--glass-shadow);
+}
+
+.text-gradient {
+    background: linear-gradient(135deg, var(--color-primary) 0%, #0d9488 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+.hover-lift {
+    transition: transform var(--transition-normal), box-shadow var(--transition-normal);
+}
+
+.hover-lift:hover {
+    transform: translateY(-4px);
+    box-shadow: var(--shadow-lg);
+}
+
+/* 6. Theme Toggle Button */
+.theme-toggle {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 44px;
+    height: 44px;
+    border: none;
+    border-radius: var(--radius-full);
+    background: var(--color-bg-surface);
+    color: var(--color-text-main);
+    cursor: pointer;
+    transition: all var(--transition-normal);
+    box-shadow: var(--shadow-md);
+    font-size: 20px;
+}
+
+.theme-toggle:hover {
+    transform: scale(1.1);
+    box-shadow: var(--shadow-lg);
+    background: var(--color-primary);
+    color: white;
+}
+
+/* 7. Scrollbar Polish */
+::-webkit-scrollbar {
+    width: 8px;
+}
+
+::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+    background: #cbd5e1;
+    border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: #94a3b8;
+}
+
+[data-theme="dark"] ::-webkit-scrollbar-thumb {
+    background: #475569;
+}
+
+[data-theme="dark"] ::-webkit-scrollbar-thumb:hover {
+    background: #64748b;
+}
+
+/* 8. Selection Color */
+::selection {
+    background: var(--color-primary);
+    color: white;
+}
+
+/* 9. Focus States */
+:focus-visible {
+    outline: 2px solid var(--color-primary);
+    outline-offset: 2px;
+}

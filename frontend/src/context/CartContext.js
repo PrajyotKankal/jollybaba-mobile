@@ -18,14 +18,43 @@ export const CartProvider = ({ children }) => {
     localStorage.setItem('jollybaba_cart', JSON.stringify(cart));
   }, [cart]);
 
-  const addToCart = (mobile) => {
+  // addToCart now accepts optional quantity (default 1)
+  const addToCart = (mobile, quantity = 1) => {
     if (!mobile || !mobile._id) return;
-    if (cart.find((item) => item._id === mobile._id)) return;
-    if (cart.length >= 20) {
-      alert("❌ You can only add up to 20 mobiles in the cart.");
+
+    setCart(prevCart => {
+      const existingIndex = prevCart.findIndex(item => item._id === mobile._id);
+
+      if (existingIndex !== -1) {
+        // Item exists - update quantity
+        const updatedCart = [...prevCart];
+        const currentQty = updatedCart[existingIndex].quantity || 1;
+        const newQty = Math.min(currentQty + quantity, 99); // Max 99
+        updatedCart[existingIndex] = { ...updatedCart[existingIndex], quantity: newQty };
+        return updatedCart;
+      } else {
+        // New item - check cart limit
+        if (prevCart.length >= 20) {
+          alert("❌ You can only add up to 20 different mobiles in the cart.");
+          return prevCart;
+        }
+        // Add new item with quantity
+        return [...prevCart, { ...mobile, quantity }];
+      }
+    });
+  };
+
+  // Update quantity for an item
+  const updateQuantity = (id, quantity) => {
+    if (quantity <= 0) {
+      removeFromCart(id);
       return;
     }
-    setCart([...cart, mobile]);
+    setCart(prevCart =>
+      prevCart.map(item =>
+        item._id === id ? { ...item, quantity: Math.min(quantity, 99) } : item
+      )
+    );
   };
 
   const removeFromCart = (id) => {
@@ -36,8 +65,18 @@ export const CartProvider = ({ children }) => {
     setCart([]);
   };
 
+  // Calculate total items count (sum of all quantities)
+  const totalItems = cart.reduce((sum, item) => sum + (item.quantity || 1), 0);
+
   return (
-    <CartContext.Provider value={{ cart, addToCart, removeFromCart, clearCart }}>
+    <CartContext.Provider value={{
+      cart,
+      addToCart,
+      removeFromCart,
+      clearCart,
+      updateQuantity,
+      totalItems
+    }}>
       {children}
     </CartContext.Provider>
   );

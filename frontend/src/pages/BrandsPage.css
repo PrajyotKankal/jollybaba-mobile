@@ -1,0 +1,225 @@
+/* BrandsPage.css */
+
+.brands-page {
+    min-height: 100vh;
+    background-color: var(--color-bg-main);
+    padding-bottom: 60px;
+}
+
+/* Hero Section */
+.brands-hero {
+    background: linear-gradient(135deg, var(--color-bg-surface) 0%, var(--color-bg-main) 100%);
+    padding: 60px 24px;
+    text-align: center;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+}
+
+.brands-hero-content h1 {
+    font-size: 2.5rem;
+    font-weight: 800;
+    color: var(--color-text-main);
+    margin-bottom: 12px;
+    letter-spacing: -0.02em;
+}
+
+.brands-hero-content p {
+    font-size: 1.1rem;
+    color: var(--color-text-secondary);
+    max-width: 600px;
+    margin: 0 auto;
+}
+
+/* Container */
+.brands-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 40px 24px;
+}
+
+/* Loading */
+.brands-loading {
+    display: flex;
+    justify-content: center;
+    padding: 60px;
+}
+
+.loading-spinner {
+    width: 40px;
+    height: 40px;
+    border: 3px solid rgba(0, 0, 0, 0.1);
+    border-radius: 50%;
+    border-top-color: var(--color-primary);
+    animation: spin 1s ease-in-out infinite;
+}
+
+@keyframes spin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+/* Grid */
+.brands-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 24px;
+}
+
+/* Brand Card - Premium Style */
+.brand-card {
+    background: var(--color-bg-surface);
+    border: 1px solid rgba(0, 0, 0, 0.06);
+    border-radius: 16px;
+    padding: 24px;
+    cursor: pointer;
+    transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    position: relative;
+    overflow: hidden;
+}
+
+.brand-monogram {
+    width: 60px;
+    height: 60px;
+    border-radius: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 28px;
+    font-weight: 700;
+    color: white;
+    box-shadow: 0 8px 16px -4px rgba(0, 0, 0, 0.1);
+    flex-shrink: 0;
+}
+
+.brand-logo-wrapper {
+    width: 60px;
+    height: 60px;
+    border-radius: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: white;
+    box-shadow: 0 4px 12px -2px rgba(0, 0, 0, 0.05);
+    padding: 8px;
+    flex-shrink: 0;
+}
+
+.brand-logo-img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    transition: transform 0.3s ease;
+}
+
+.brand-card:hover .brand-logo-img {
+    transform: scale(1.1);
+}
+
+.brand-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(45deg, transparent, rgba(var(--color-primary-rgb), 0.03));
+    opacity: 0;
+    transition: opacity 0.4s ease;
+}
+
+.brand-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 20px 40px -10px rgba(0, 0, 0, 0.08);
+    border-color: var(--color-primary);
+}
+
+.brand-card:hover::before {
+    opacity: 1;
+}
+
+.brand-card-content {
+    z-index: 1;
+    flex: 1;
+}
+
+.brand-name {
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: var(--color-text-main);
+    margin-bottom: 4px;
+    letter-spacing: -0.01em;
+}
+
+.brand-count {
+    font-size: 0.85rem;
+    color: var(--color-text-light);
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    background: rgba(0, 0, 0, 0.04);
+    padding: 4px 8px;
+    border-radius: 6px;
+}
+
+.brand-card-arrow {
+    font-size: 1.5rem;
+    color: var(--color-text-light);
+    opacity: 0;
+    transform: translateX(-10px);
+    transition: all 0.4s ease;
+}
+
+.brand-card:hover .brand-card-arrow {
+    opacity: 1;
+    transform: translateX(0);
+    color: var(--color-primary);
+}
+
+/* Dark Mode */
+[data-theme='dark'] .brands-hero {
+    border-bottom-color: rgba(255, 255, 255, 0.05);
+}
+
+[data-theme='dark'] .brand-card {
+    background: #1a1a1a;
+    border-color: rgba(255, 255, 255, 0.08);
+}
+
+[data-theme='dark'] .brand-card:hover {
+    border-color: var(--color-primary);
+    box-shadow: 0 20px 40px -10px rgba(0, 0, 0, 0.3);
+}
+
+[data-theme='dark'] .loading-spinner {
+    border-color: rgba(255, 255, 255, 0.1);
+    border-top-color: var(--color-primary);
+}
+
+[data-theme='dark'] .brand-count {
+    background: rgba(255, 255, 255, 0.05);
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .brands-hero-content h1 {
+        font-size: 2rem;
+    }
+
+    .brands-grid {
+        grid-template-columns: 1fr;
+        gap: 16px;
+    }
+
+    .brand-card {
+        padding: 20px;
+    }
+
+    .brand-card-arrow {
+        opacity: 1;
+        transform: none;
+        font-size: 1.2rem;
+    }
+}

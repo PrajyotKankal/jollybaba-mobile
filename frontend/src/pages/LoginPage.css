@@ -1,36 +1,73 @@
-/* LoginPage.css */
+/* ==========================
+   PREMIUM LOGIN PAGE STYLES
+   ========================== */
+
 .login-wrapper {
   min-height: 100vh;
   display: flex;
   align-items: center;
   justify-content: center;
-  background: #f5f7fa;
-  padding: 20px;
+  background: linear-gradient(135deg, var(--color-bg-main) 0%, #e0f2f1 100%);
+  padding: 24px;
 }
 
 .login-card {
-  background: #ffffff;
-  padding: 40px 30px;
-  border-radius: 12px;
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.06);
-  max-width: 400px;
+  background: var(--glass-bg);
+  backdrop-filter: var(--glass-blur);
+  -webkit-backdrop-filter: var(--glass-blur);
+  padding: 48px 40px;
+  border-radius: var(--radius-xl);
+  box-shadow: var(--shadow-xl);
+  border: 1px solid rgba(255, 255, 255, 0.6);
+  max-width: 420px;
   width: 100%;
   text-align: center;
+  animation: fadeScaleUp 0.4s ease-out;
+}
+
+@keyframes fadeScaleUp {
+  from {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
 }
 
 .login-card h2 {
-  font-size: 24px;
-  margin-bottom: 10px;
-  color: #222;
+  font-size: 28px;
+  font-weight: 800;
+  color: var(--color-text-main);
+  margin-bottom: 12px;
+  letter-spacing: -0.02em;
 }
 
 .login-card p {
-  font-size: 14px;
-  color: #555;
-  margin-bottom: 30px;
+  font-size: 15px;
+  color: var(--color-text-secondary);
+  margin-bottom: 32px;
+  line-height: 1.6;
 }
 
 #googleSignInDiv {
   display: flex;
   justify-content: center;
+  margin-top: 8px;
+}
+
+/* Optional: Add a subtle decorative element */
+.login-card::before {
+  content: '';
+  position: absolute;
+  top: -2px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 60px;
+  height: 4px;
+  background: var(--color-primary);
+  border-radius: 0 0 4px 4px;
+  opacity: 0.8;
 }

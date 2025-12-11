@@ -5,6 +5,7 @@ import { SearchContext } from '../context/SearchContext';
 import { UserTypeContext } from '../context/UserTypeContext';
 import { CartContext } from '../context/CartContext';
 import { toast } from 'react-toastify';
+import SEO from '../components/SEO';
 
 
 
@@ -16,7 +17,7 @@ const HomePage = () => {
 
   const [filters, setFilters] = useState({ brand: [], ram: [], storage: [] });
   const [filteredMobiles, setFilteredMobiles] = useState([]);
-  const [dropdownOpen, setDropdownOpen] = useState({ brand: true, ram: false, storage: false });
+  const [dropdownOpen, setDropdownOpen] = useState({ brand: false, ram: false, storage: false });
   const [mobileFiltersVisible, setMobileFiltersVisible] = useState(false);
   const isFilterActive =
     Object.values(filters).some((arr) => arr.length > 0) || priceCap !== -1;
@@ -37,6 +38,7 @@ const HomePage = () => {
 
   const sidebarRef = useRef();
   const overlayRef = useRef();
+  const pillRowRef = useRef();
   const navigate = useNavigate();
 
   const [currentPage, setCurrentPage] = useState(1);
@@ -199,13 +201,19 @@ const HomePage = () => {
   const currentMobiles = filteredMobiles.slice(indexOfFirst, indexOfLast);
   const totalPages = Math.ceil(filteredMobiles.length / mobilesPerPage);
 
+  const scrollToPills = () => {
+    if (pillRowRef.current) {
+      pillRowRef.current.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+  };
+
   const renderPagination = () => (
     <div className="pagination-nav">
       <button
         className="page-btn"
         onClick={() => {
           setCurrentPage((prev) => Math.max(prev - 1, 1));
-          window.scrollTo({ top: 0, behavior: 'smooth' });
+          scrollToPills();
         }}
         disabled={currentPage === 1}
       >
@@ -218,7 +226,7 @@ const HomePage = () => {
         className="page-btn"
         onClick={() => {
           setCurrentPage((prev) => Math.min(prev + 1, totalPages));
-          window.scrollTo({ top: 0, behavior: 'smooth' });
+          scrollToPills();
         }}
         disabled={currentPage === totalPages}
       >
@@ -233,24 +241,28 @@ const HomePage = () => {
   };
 
   return (
-    <div className="homepage-grid">
-      
+    <div className="homepage-container">
+      <SEO
+        title="Best Second Hand Mobile Shop in Pune Deccan"
+        description="Buy genuine new & second hand mobile phones at best prices in Pune. iPhone, Samsung, OnePlus, Vivo, Oppo available. Wholesale & retail. 5★ rated on Google. JollyBaba Mobiles, Deccan Gymkhana, JM Road."
+        keywords="second hand mobile Pune, used phone Pune, mobile shop Deccan, JollyBaba Mobiles, refurbished phones Pune, iPhone Pune, Samsung Pune, OnePlus Pune, mobile dealer Pune, wholesale mobile Pune"
+        canonical="https://jollybaba.in/"
+      />
 
-      {loading && (
-        <div className="spinner-overlay">
-          <div className="elegant-spinner"></div>
-          <div className="spinner-text">Loading Mobiles...</div>
-        </div>
-      )}
+      <div className="homepage-grid">
 
-      {mobileFiltersVisible && <div className="overlay" ref={overlayRef}></div>}
+        {loading && (
+          <div className="spinner-overlay">
+            <div className="elegant-spinner"></div>
+            <div className="spinner-text">Loading Mobiles...</div>
+          </div>
+        )}
 
-      <aside className={`filter-sidebar ${mobileFiltersVisible ? 'visible' : ''}`} ref={sidebarRef}>
+        {mobileFiltersVisible && <div className="overlay" ref={overlayRef}></div>}
 
-        <div className="filter-header-bar">
-          <h3>Filters</h3>
+        <aside className={`filter-sidebar ${mobileFiltersVisible ? 'visible' : ''}`} ref={sidebarRef}>
 
-          <div className="filter-header-actions">
+          <div className="filter-header-bar">
             <button
               className="clear-text-btn"
               onClick={() => {
@@ -264,6 +276,8 @@ const HomePage = () => {
               Clear
             </button>
 
+            <h3>Filters</h3>
+
             <button
               className="close-btn mobile-only"
               onClick={() => setMobileFiltersVisible(false)}
@@ -271,273 +285,352 @@ const HomePage = () => {
               ✕
             </button>
           </div>
-        </div>
 
 
-        {['brand', 'ram', 'storage'].map((type) => (
-          <div key={type} className="filter-group">
-            <div className="filter-header" onClick={() => toggleDropdown(type)}>
-              <span>{type.charAt(0).toUpperCase() + type.slice(1)}</span>
-              <span className="arrow">{dropdownOpen[type] ? '▲' : '▼'}</span>
-            </div>
-            {dropdownOpen[type] && (
-              <div className="filter-options">
-                {unique(type).map((val) => (
-                  <label key={val} className="checkbox">
-                    <input
-                      type="checkbox"
-                      onChange={() => handleCheckboxChange(type, val)}
-                      checked={filters[type].includes(val)}
-                    />
-                    <span>{val}</span>
-                  </label>
-                ))}
+          <div className="filter-sidebar-content">
+            {/* Brand Filter (Custom Checkboxes) */}
+            <div className="filter-group">
+              <div className="filter-header" onClick={() => toggleDropdown('brand')}>
+                <span>Brand</span>
+                <span className="arrow">{dropdownOpen.brand ? '−' : '+'}</span>
               </div>
-            )}
-          </div>
-        ))}
+              <div className={`filter-content ${dropdownOpen.brand ? 'open' : ''}`}>
+                <div className="filter-options">
+                  {unique('brand').map((val) => (
+                    <label key={val} className="custom-checkbox-row">
+                      <input
+                        type="checkbox"
+                        onChange={() => handleCheckboxChange('brand', val)}
+                        checked={filters.brand.includes(val)}
+                      />
+                      <span className="checkmark"></span>
+                      <span className="label-text">{val}</span>
+                    </label>
+                  ))}
+                </div>
+              </div>
+            </div>
 
-        <div className="price-slider">
-          <label>
-            Max Price:{' '}
-            <strong>
-              {priceCap === -1
-                ? 'All'
-                : priceCap === 200000
-                  ? '> ₹50,000'
-                  : `₹${priceCap.toLocaleString()}`}
-            </strong>
-          </label>
-          <input
-            type="range"
-            min={0}
-            max={6}
-            step={1}
-            value={[-1, 10000, 20000, 30000, 40000, 50000, 200000].indexOf(priceCap)}
-            onChange={(e) => {
-              const steps = [-1, 10000, 20000, 30000, 40000, 50000, 200000];
-              setPriceCap(steps[parseInt(e.target.value)]);
-              setCurrentPage(1);
-            }}
-          />
-          <div className="slider-labels">
-            {['All', '10K', '20K', '30K', '40K', '50K', '50K+'].map((label, i) => (
-              <span key={i}>{label}</span>
-            ))}
-          </div>
-        </div>
+            {/* RAM Filter (Pills) */}
+            <div className="filter-group">
+              <div className="filter-header" onClick={() => toggleDropdown('ram')}>
+                <span>RAM</span>
+                <span className="arrow">{dropdownOpen.ram ? '−' : '+'}</span>
+              </div>
+              <div className={`filter-content ${dropdownOpen.ram ? 'open' : ''}`}>
+                <div className="filter-options-pills">
+                  {unique('ram').map((val) => (
+                    <button
+                      key={val}
+                      className={`filter-pill ${filters.ram.includes(val) ? 'active' : ''}`}
+                      onClick={() => handleCheckboxChange('ram', val)}
+                    >
+                      {val}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            </div>
 
-        <button
-          className="search-button"
-          onClick={() => {
-            setMobileFiltersVisible(false);
-          }}
-        >
-          Apply Filters
-        </button>
+            {/* Storage Filter (Pills) */}
+            <div className="filter-group">
+              <div className="filter-header" onClick={() => toggleDropdown('storage')}>
+                <span>Storage</span>
+                <span className="arrow">{dropdownOpen.storage ? '−' : '+'}</span>
+              </div>
+              <div className={`filter-content ${dropdownOpen.storage ? 'open' : ''}`}>
+                <div className="filter-options-pills">
+                  {unique('storage').map((val) => (
+                    <button
+                      key={val}
+                      className={`filter-pill ${filters.storage.includes(val) ? 'active' : ''}`}
+                      onClick={() => handleCheckboxChange('storage', val)}
+                    >
+                      {val}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            </div>
 
-      </aside>
-
-
-      <main className="catalog-section">
-
-        <div className="filter-topbar">
-          <input
-            type="text"
-            className="mobile-searchbar"
-            placeholder="Search mobiles..."
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-          />
-
-          <button
-            className={`filter-toggle-btn ${isFilterActive ? 'active' : ''}`}
-            onClick={() => setMobileFiltersVisible(true)}
-          >
-            ☰
-          </button>
-
-
-
-        </div>
-
-
-
-
-        <div className="pill-row">
-          {['Mobiles', 'Tablets', 'Android', 'Apple'].map((pill) => {
-            const isActive = activeCategory === pill;
-            return (
-              <button
-                key={pill}
-                className={`category-pill ${isActive ? 'active' : ''}`}
-                onClick={() => {
-                  setActiveCategory(isActive ? null : pill);
+            <div className="price-slider">
+              <label>
+                Max Price:{' '}
+                <strong>
+                  {priceCap === -1
+                    ? 'All'
+                    : priceCap === 200000
+                      ? '> ₹50,000'
+                      : `₹${priceCap.toLocaleString()}`}
+                </strong>
+              </label>
+              <input
+                type="range"
+                min={0}
+                max={6}
+                step={1}
+                value={[-1, 10000, 20000, 30000, 40000, 50000, 200000].indexOf(priceCap)}
+                onChange={(e) => {
+                  const steps = [-1, 10000, 20000, 30000, 40000, 50000, 200000];
+                  setPriceCap(steps[parseInt(e.target.value)]);
                   setCurrentPage(1);
                 }}
-              >
-                {pill}
-              </button>
-            );
-          })}
-        </div>
+              />
+              <div className="slider-labels">
+                {['All', '10K', '20K', '30K', '40K', '50K', '50K+'].map((label, i) => (
+                  <span key={i}>{label}</span>
+                ))}
+              </div>
+            </div>
+          </div>
+
+          <button
+            className="search-button"
+            onClick={() => {
+              setMobileFiltersVisible(false);
+            }}
+          >
+            Apply Filters
+          </button>
+
+        </aside>
 
 
-        {/* Desktop Grid View */}
-        <div className="mobile-grid desktop-only">
-          {currentMobiles.length > 0 ? (
-            currentMobiles.map((mobile) => (
-              <div
-                key={mobile._id}
-                className="mobile-card-link"
-                onClick={() => handleCardClick(mobile._id)}
-              >
-                <div className="mobile-card">
-                  <div className="image-wrapper">
-                    <img src={mobile.imageUrls?.[0] || '/no-image.png'} alt={mobile.model} />
-                  </div>
+        <main className="catalog-section">
 
-                  {mobile.isOutOfStock && (
-                    <span className="stock-badge-corner out">Out of Stock</span>
-                  )}
+          <div className="filter-topbar">
+            <input
+              type="text"
+              className="mobile-searchbar"
+              placeholder="Search mobiles..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+            />
 
-                  <div className="card-text modern">
-                    <p className="brand-text">{mobile.brand}</p>
-                    <h4 className="model-text">{mobile.model}</h4>
-                    {/* In JSX */}
-                    {isDealer ? (
-                      <div className="retail-row">
-                        <span className="retail-value">₹{mobile.dealerPrice}</span>
-                      </div>
-                    ) : (
-                      <div className="retail-row">
-                        <span className="retail-value">₹{mobile.retailPrice}</span>
-                      </div>
+            <button
+              className={`filter-toggle-btn ${isFilterActive ? 'active' : ''}`}
+              onClick={() => setMobileFiltersVisible(true)}
+            >
+              ☰
+            </button>
+
+          </div>
+
+          <div className="pill-row" ref={pillRowRef}>
+            {['Mobiles', 'Tablets', 'Android', 'Apple'].map((pill) => {
+              const isActive = activeCategory === pill;
+              return (
+                <button
+                  key={pill}
+                  className={`category-pill ${isActive ? 'active' : ''}`}
+                  onClick={() => {
+                    setActiveCategory(isActive ? null : pill);
+                    setCurrentPage(1);
+                  }}
+                >
+                  {pill}
+                </button>
+              );
+            })}
+          </div>
+
+          {/* Catalog Controls - Sort & Results */}
+          <div className="catalog-controls">
+            <div className="results-count">
+              Showing {currentMobiles.length} of {filteredMobiles.length} products
+            </div>
+
+            <select
+              className="sort-dropdown"
+              onChange={(e) => {
+                const value = e.target.value;
+                const sorted = [...filteredMobiles];
+                if (value === 'price-low') sorted.sort((a, b) => (isDealer ? a.dealerPrice : a.retailPrice) - (isDealer ? b.dealerPrice : b.retailPrice));
+                else if (value === 'price-high') sorted.sort((a, b) => (isDealer ? b.dealerPrice : b.retailPrice) - (isDealer ? a.dealerPrice : a.retailPrice));
+                else if (value === 'name') sorted.sort((a, b) => `${a.brand} ${a.model}`.localeCompare(`${b.brand} ${b.model}`));
+                setFilteredMobiles(sorted);
+              }}
+            >
+              <option value="">Sort By</option>
+              <option value="price-low">Price: Low to High</option>
+              <option value="price-high">Price: High to Low</option>
+              <option value="name">Name (A-Z)</option>
+            </select>
+          </div>
+
+          {/* Active Filter Chips */}
+          {isFilterActive && (
+            <div className="active-filters">
+              {Object.entries(filters).map(([key, values]) =>
+                values.map(value => (
+                  <span key={`${key}-${value}`} className="filter-chip">
+                    {value}
+                    <button
+                      className="chip-remove"
+                      onClick={() => {
+                        setFilters(prev => ({
+                          ...prev,
+                          [key]: prev[key].filter(v => v !== value)
+                        }));
+                      }}
+                    >
+                      ×
+                    </button>
+                  </span>
+                ))
+              )}
+              {priceCap !== -1 && (
+                <span className="filter-chip">
+                  Price: ₹{priceCap.toLocaleString()}
+                  <button className="chip-remove" onClick={() => setPriceCap(-1)}>×</button>
+                </span>
+              )}
+            </div>
+          )}
+
+          {/* Unified Grid View */}
+          <div className="mobile-grid">
+            {currentMobiles.length > 0 ? (
+              currentMobiles.map((mobile) => (
+                <div
+                  key={mobile._id}
+                  className="mobile-card-link"
+                  onClick={() => handleCardClick(mobile._id)}
+                >
+                  <div className="mobile-card">
+                    <div className="image-wrapper">
+                      <img
+                        src={mobile.imageUrls?.[0] || '/no-image.png'}
+                        alt={`${mobile.brand} ${mobile.model} - Second hand mobile phone in Pune at JollyBaba Mobiles`}
+                        loading="lazy"
+                      />
+                    </div>
+
+                    {mobile.isOutOfStock && (
+                      <span className="stock-badge-corner out">Out of Stock</span>
                     )}
 
+                    <div className="card-text modern">
+                      <p className="brand-text">{mobile.brand}</p>
+                      <h4 className="model-text">{mobile.model}</h4>
+                      {(mobile.ram || mobile.storage) && (
+                        <p className="specs-text">
+                          {mobile.ram && <span>{mobile.ram}</span>}
+                          {mobile.ram && mobile.storage && <span className="specs-divider">•</span>}
+                          {mobile.storage && <span>{mobile.storage}</span>}
+                        </p>
+                      )}
+                      {isDealer ? (
+                        <div className="retail-row">
+                          <span className="retail-value">₹{mobile.dealerPrice}</span>
+                        </div>
+                      ) : (
+                        <div className="retail-row">
+                          <span className="retail-value">₹{mobile.retailPrice}</span>
+                        </div>
+                      )}
 
-
-                    {!mobile.isOutOfStock && (
-                      <button
-                        className="corner-cart-btn"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          addToCart(mobile);
-                          toast.success(`${mobile.brand} ${mobile.model} added to cart`, {
-                            position: "top-center",
-                            theme: "light",       // Premium light theme
-                            autoClose: 1000,      // 1 second duration
-                            hideProgressBar: true, // ❌ No animation bar
-                            closeOnClick: true,
-                            pauseOnHover: false,
-                            draggable: false,
-                            style: {
-                              borderRadius: '12px',
-                              padding: '10px 16px',
-                              fontSize: '14px',
-                              fontWeight: '500',
-                              color: '#1f2d3d',
-                              background: '#fefefe',
-                              boxShadow: '0 4px 12px rgba(0,0,0,0.08)',
-                            },
-                          });
-                        }}
-
-
-                      >
-                        🛒
-                      </button>
-                    )}
+                      {!mobile.isOutOfStock && (
+                        <button
+                          className="corner-cart-btn"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            addToCart(mobile);
+                            toast.success(`${mobile.brand} ${mobile.model} added to cart`, {
+                              position: "top-center",
+                              theme: "light",
+                              autoClose: 1000,
+                              hideProgressBar: true,
+                              closeOnClick: true,
+                              pauseOnHover: false,
+                              draggable: false,
+                              style: {
+                                borderRadius: '12px',
+                                padding: '10px 16px',
+                                fontSize: '14px',
+                                fontWeight: '500',
+                                color: '#1f2d3d',
+                                background: '#fefefe',
+                                boxShadow: '0 4px 12px rgba(0,0,0,0.08)',
+                              },
+                            });
+                          }}
+                        >
+                          🛒
+                        </button>
+                      )}
+                    </div>
                     <div className="watermark">JollyBaba Mobiles</div>
                   </div>
                 </div>
+              ))
+            ) : (
+              <div className="empty-state">
+                <div className="empty-state-icon">📱</div>
+                <h3>No Products Found</h3>
+                <p>We couldn't find any products matching your filters. Try adjusting your search or clearing filters.</p>
+                <button
+                  className="empty-state-btn"
+                  onClick={() => {
+                    setFilters({ brand: [], ram: [], storage: [] });
+                    setPriceCap(-1);
+                    setSearchQuery('');
+                    setActiveCategory(null);
+                  }}
+                >
+                  Clear All Filters
+                </button>
               </div>
-            ))
-          ) : (
-            <p>No mobiles found matching your search.</p>
-          )}
-        </div>
+            )}
+          </div>
 
-        {/* Mobile List View */}
-        <div className="mobile-list-view mobile-only">
-          {currentMobiles.length > 0 ? (
-            currentMobiles.map((mobile) => (
-              <div
-                key={mobile._id}
-                className="mobile-list-item"
-                onClick={() => handleCardClick(mobile._id)}
-              >
-                <img
-                  className="mobile-list-image"
-                  src={mobile.imageUrls?.[0] || '/no-image.png'}
-                  alt={mobile.model}
-                />
-                <div className="mobile-list-details">
-                  <div className="mobile-list-title">{mobile.brand} {mobile.model}</div>
 
-                  <div className="mobile-list-specs">
-                    {mobile.ram ? `${mobile.ram} / ` : ''}
-                    {mobile.storage ? mobile.storage : ''}
+          {renderPagination()}
+        </main>
+
+      </div>
+
+      {/* Featured Products Carousel - At Bottom */}
+      {!loading && filteredMobiles.length > 0 && (
+        <section className="featured-section">
+          <div className="featured-container">
+            <div className="featured-header">
+              <h2>Featured Products</h2>
+              <p>Handpicked premium smartphones just for you</p>
+            </div>
+            <div className="featured-carousel">
+              {filteredMobiles.slice(0, 8).map((mobile) => (
+                <div
+                  key={mobile._id}
+                  className="featured-card"
+                  onClick={() => handleCardClick(mobile._id)}
+                >
+                  <div className="featured-image">
+                    <img
+                      src={mobile.imageUrls?.[0] || '/no-image.png'}
+                      alt={`Buy ${mobile.brand} ${mobile.model} at best price in Pune`}
+                      loading="lazy"
+                    />
+                    {mobile.isOutOfStock && (
+                      <span className="featured-badge out">Out of Stock</span>
+                    )}
+                    {!mobile.isOutOfStock && Math.random() > 0.7 && (
+                      <span className="featured-badge new">New</span>
+                    )}
                   </div>
-
-                  <div className="mobile-list-price">
-                    ₹{isDealer ? mobile.dealerPrice : mobile.retailPrice}
+                  <div className="featured-info">
+                    <p className="featured-brand">{mobile.brand}</p>
+                    <h4 className="featured-model">{mobile.model}</h4>
+                    <p className="featured-price">
+                      ₹{isDealer ? mobile.dealerPrice?.toLocaleString() : mobile.retailPrice?.toLocaleString()}
+                    </p>
                   </div>
-
-                  <div className="watermark">JollyBaba Mobiles</div>
-
-                  {mobile.isOutOfStock && (
-                    <span className="mobile-out-badge">Out of Stock</span>
-                  )}
                 </div>
-
-
-                {!mobile.isOutOfStock && (
-                  <button
-                    className="corner-cart-btn"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      addToCart(mobile);
-                      toast.success(`${mobile.brand} ${mobile.model} added to cart`, {
-                        position: "top-center",
-                        theme: "light",
-                        autoClose: 1000,
-                        hideProgressBar: true,
-                        closeOnClick: true,
-                        pauseOnHover: false,
-                        draggable: false,
-                        style: {
-                          borderRadius: '12px',
-                          padding: window.innerWidth < 768 ? '8px 12px' : '10px 16px',
-                          fontSize: window.innerWidth < 768 ? '12px' : '14px',
-                          fontWeight: '500',
-                          color: '#1f2d3d',
-                          background: '#fefefe',
-                          boxShadow: '0 4px 12px rgba(0,0,0,0.08)',
-                          maxWidth: window.innerWidth < 768 ? '90%' : '400px',
-                          margin: '0 auto',
-                        },
-                      });
-
-                    }}
-
-
-
-                  >
-                    🛒
-                  </button>
-                )}
-              </div>
-            ))
-          ) : (
-            <p>No mobiles found.</p>
-          )}
-        </div>
-
-
-        {renderPagination()}
-      </main>
-
+              ))}
+            </div>
+          </div>
+        </section>
+      )}
     </div>
   );
 };

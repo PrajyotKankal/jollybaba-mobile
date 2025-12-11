@@ -3,6 +3,7 @@ import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 import AdminNavbar from '../components/AdminNavbar';
 import ManageMobiles from '../pages/ManageMobiles';
+import ReportsSection from '../components/ReportsSection';
 import imageCompression from 'browser-image-compression';
 import './AdminDashboard.css';
 
@@ -85,22 +86,22 @@ const AdminDashboard = () => {
     }
   };
 
-const handleToggleOutOfStock = async (id) => {
-  const confirm = window.confirm('Are you sure you want to toggle the stock status of this mobile?');
-  if (!confirm) return;
+  const handleToggleOutOfStock = async (id) => {
+    const confirm = window.confirm('Are you sure you want to toggle the stock status of this mobile?');
+    if (!confirm) return;
 
-  try {
-    await axios.patch(`${API}/api/mobiles/${id}/out-of-stock`, null, {
-      headers: { Authorization: `Bearer ${token}` }
-    });
+    try {
+      await axios.patch(`${API}/api/mobiles/${id}/out-of-stock`, null, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
 
-    // Refresh list after toggle
-    fetchMobiles();
-  } catch (error) {
-    console.error('Failed to toggle stock status:', error);
-    alert('Failed to update stock status.');
-  }
-};
+      // Refresh list after toggle
+      fetchMobiles();
+    } catch (error) {
+      console.error('Failed to toggle stock status:', error);
+      alert('Failed to update stock status.');
+    }
+  };
 
 
   const handleUpdate = async (e) => {
@@ -372,6 +373,10 @@ const handleToggleOutOfStock = async (id) => {
             handleToggleOutOfStock={handleToggleOutOfStock} // 🔁 Add this
 
           />
+        )}
+
+        {activeTab === 'reports' && (
+          <ReportsSection mobiles={mobiles} />
         )}
       </div>
     </div>
