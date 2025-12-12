@@ -538,33 +538,6 @@ const MobileDetailPage = () => {
             </span>
           )}
 
-          {/* Trust Badges */}
-          <div className="trust-badges-grid">
-            <div className="trust-badge-item">
-              <div className="trust-badge-content">
-                <h4>1 Year Warranty</h4>
-                <p>On all products</p>
-              </div>
-            </div>
-            <div className="trust-badge-item">
-              <div className="trust-badge-content">
-                <h4>7 Days Return</h4>
-                <p>Easy returns</p>
-              </div>
-            </div>
-            <div className="trust-badge-item">
-              <div className="trust-badge-content">
-                <h4>Free Delivery</h4>
-                <p>On all orders</p>
-              </div>
-            </div>
-            <div className="trust-badge-item">
-              <div className="trust-badge-content">
-                <h4>100% Genuine</h4>
-                <p>Authentic products</p>
-              </div>
-            </div>
-          </div>
 
           {/* Quantity Selector */}
           <div className="quantity-selector">
