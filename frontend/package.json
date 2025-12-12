@@ -10,6 +10,7 @@
     "@testing-library/user-event": "^13.5.0",
     "axios": "^1.10.0",
     "browser-image-compression": "^2.0.2",
+    "fuzzysort": "^3.1.0",
     "jwt-decode": "^4.0.0",
     "react": "^19.1.0",
     "react-dom": "^19.1.0",
@@ -19,12 +20,17 @@
     "react-scripts": "5.0.1",
     "react-toastify": "^11.0.5",
     "recharts": "^3.5.1",
+    "serve": "^14.2.4",
     "sharp": "^0.34.2",
     "streamifier": "^0.1.1",
     "swiper": "^11.2.10",
     "web-vitals": "^2.1.4",
-    "xlsx": "^0.18.5",
-    "serve": "^14.2.4"
+    "workbox-core": "^7.4.0",
+    "workbox-expiration": "^7.4.0",
+    "workbox-precaching": "^7.4.0",
+    "workbox-routing": "^7.4.0",
+    "workbox-strategies": "^7.4.0",
+    "xlsx": "^0.18.5"
   },
   "scripts": {
     "start": "react-scripts start",

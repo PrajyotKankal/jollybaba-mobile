@@ -1,6 +1,7 @@
 import React, { useEffect, useState, useContext, useRef } from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
+import fuzzysort from 'fuzzysort';
 import { SearchContext } from '../context/SearchContext';
 import { UserTypeContext } from '../context/UserTypeContext';
 import { CartContext } from '../context/CartContext';
@@ -121,14 +122,37 @@ const HomePage = () => {
         }
       }
 
-      // Search query filter
+      // Search query filter - using fuzzy search
       if (searchQuery.trim()) {
-        const lower = searchQuery.toLowerCase();
-        results = results.filter((m) =>
-          [m.brand, m.model, m.ram, m.storage, m.color, String(m.retailPrice), String(m.dealerPrice)]
+        const query = searchQuery.trim();
+
+        // Prepare searchable targets for each mobile
+        const searchTargets = results.map(m => ({
+          mobile: m,
+          searchText: [m.brand, m.model, m.ram, m.storage, m.color]
             .filter(Boolean)
-            .some((field) => field.toLowerCase().includes(lower))
-        );
+            .join(' ')
+        }));
+
+        // Use fuzzysort to find matches
+        const fuzzyResults = fuzzysort.go(query, searchTargets, {
+          key: 'searchText',
+          threshold: -10000, // Lower = more lenient matching
+          limit: 500
+        });
+
+        // If we have fuzzy results, use them
+        if (fuzzyResults.length > 0) {
+          results = fuzzyResults.map(r => r.obj.mobile);
+        } else {
+          // Fallback: if no fuzzy match, try exact includes as last resort
+          const lower = query.toLowerCase();
+          results = results.filter((m) =>
+            [m.brand, m.model, m.ram, m.storage, m.color, String(m.retailPrice), String(m.dealerPrice)]
+              .filter(Boolean)
+              .some((field) => field.toLowerCase().includes(lower))
+          );
+        }
       }
 
       // Price slider (retail/dealer)

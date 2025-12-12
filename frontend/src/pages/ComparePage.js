@@ -15,7 +15,7 @@ const ComparePage = () => {
     const isDealer = userType === 'Dealer';
 
     // Refs for click outside handling
-    const dropdownRefs = [useRef(null), useRef(null), useRef(null)];
+    const dropdownRefs = useRef([]);
 
     useEffect(() => {
         fetchMobiles();
@@ -44,8 +44,8 @@ const ComparePage = () => {
             const newDropdown = [...showDropdown];
             let changed = false;
 
-            dropdownRefs.forEach((ref, index) => {
-                if (showDropdown[index] && ref.current && !ref.current.contains(event.target)) {
+            dropdownRefs.current.forEach((node, index) => {
+                if (showDropdown[index] && node && !node.contains(event.target)) {
                     newDropdown[index] = false;
                     changed = true;
                 }
@@ -160,7 +160,7 @@ const ComparePage = () => {
                                     </button>
                                 </div>
                             ) : (
-                                <div className="compare-empty" ref={dropdownRefs[index]}>
+                                <div className="compare-empty" ref={el => (dropdownRefs.current[index] = el)}>
                                     <div className="search-wrapper">
                                         <input
                                             type="text"
