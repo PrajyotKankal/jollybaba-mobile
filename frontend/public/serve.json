@@ -1,0 +1,23 @@
+{
+    "rewrites": [
+        {
+            "source": "/apk/**",
+            "destination": "/apk/:splat"
+        }
+    ],
+    "headers": [
+        {
+            "source": "/apk/**",
+            "headers": [
+                {
+                    "key": "Content-Type",
+                    "value": "application/vnd.android.package-archive"
+                },
+                {
+                    "key": "Content-Disposition",
+                    "value": "attachment"
+                }
+            ]
+        }
+    ]
+}
