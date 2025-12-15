@@ -42,7 +42,9 @@ const allowlist = Array.from(new Set([...staticAllow, ...envOrigins]));
 const corsOptionsDelegate = (req, callback) => {
   const origin = req.header('Origin');
   const isNetlifyPreview = origin && origin.endsWith('.netlify.app');
-  const isAllowed = !origin || allowlist.includes(origin) || isNetlifyPreview;
+  // Allow any localhost origin (Flutter web dev uses random ports like 64173)
+  const isLocalhost = origin && /^http:\/\/localhost(:\d+)?$/.test(origin);
+  const isAllowed = !origin || allowlist.includes(origin) || isNetlifyPreview || isLocalhost;
 
   callback(
     null,
